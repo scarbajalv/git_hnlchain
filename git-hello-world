@@ -1,0 +1,11 @@
+#!/bin/bash
+
+git remote set-url origin git+ssh://git@github.com/scarbajalv/hello-world.git
+
+echo "Insert Commit Message: "
+
+read commitmsg
+
+git commit -m $commitmsg
+
+echo SUCCESS!
