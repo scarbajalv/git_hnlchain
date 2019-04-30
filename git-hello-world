@@ -10,7 +10,7 @@ read commitmsg
 
 echo $commitmsg
 
-git commit -m $commitmsg
+git commit -m \ eval $($commitmsg)
 
 git push origin master
 
