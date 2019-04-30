@@ -10,10 +10,10 @@ read commitmsg
 
 echo $commitmsg
 
-git commit -m \ eval $($commitmsg)
+git commit -m  $commitmsg
 
 git push origin master
 
 echo SUCCESS!
 
-#algunas ediciones
+#algunas ediciones !!
