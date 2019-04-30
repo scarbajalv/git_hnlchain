@@ -8,8 +8,12 @@ echo "Insert Commit Message: "
 
 read commitmsg
 
+echo $commitmsg
+
 git commit -m $commitmsg
 
 git push origin master
 
 echo SUCCESS!
+
+#algunas ediciones
