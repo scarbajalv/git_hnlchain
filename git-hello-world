@@ -10,7 +10,7 @@ read commitmsg
 
 echo $commitmsg
 
-git commit -m  $commitmsg
+git commit -m "hola que tal"
 
 git push origin master
 
