@@ -4,7 +4,7 @@ git remote set-url origin git+ssh://git@github.com/scarbajalv/hello-world.git
 
 git add .
 
-echo "Insert Commit Message: "
+echo "Insert Commit Message: " 
 
 read commitmsg
 
