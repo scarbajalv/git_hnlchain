@@ -10,7 +10,9 @@ read commitmsg
 
 echo $commitmsg
 
-git commit -m "hola que tal"
+NEWMSG="hola que tal"
+
+git commit -m "$NEWMSG"
 
 git push origin master
 
