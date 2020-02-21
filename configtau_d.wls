@@ -268,38 +268,15 @@ expbr[n_,mixe_,mixmu_,mixtau_]:=Join[expbrcc1[n,mixe,mixmu,mixtau],expbrnc1[n,mi
 
 
 (*************** MESON DECAY ****************** *)
-(* meson decay BRs function *)
-width2body[meson_, l_, hnl_, u_]:=
-	Re[(gf^2*meson[[3]]^2*meson[[2]]*hnl^2)/(8*Pi)*meson[[4]]^2*u^2
-	*(1-hnl^2/meson[[2]]^2+2l^2/meson[[2]]^2+l^2/hnl^2(1-l^2/meson[[2]]^2))	
-	*Sqrt[(1 + hnl^2/meson[[2]]^2 - l^2/meson[[2]]^2)^2-4*hnl^2/meson[[2]]^2]
-	*UnitStep[meson[[2]] - l]];
-newwidth[meson_, hnl_, mixe_, mixmu_, mixtau_] :=  
-	Re[1/meson[[1]] 
-  + width2body[meson, e, hnl, mixe] 
-  + width2body[meson, mu, hnl, mixmu] 
-  + width2body[meson, tau, hnl, mixtau]];
-meson2bodybr[meson_, l_, hnl_, u_, mixe_, mixmu_, mixtau_] := 
-	Re[1/newwidth[meson, hnl, mixe, mixmu, mixtau]
-	*(gf^2*meson[[3]]^2*meson[[2]]*hnl^2)/(8*Pi)*meson[[4]]^2*u^2
-  *(1 - hnl^2/meson[[2]]^2 + 2 l^2/meson[[2]]^2 + l^2/hnl^2(1 - l^2/meson[[2]]^2))
-  *Sqrt[(1 + hnl^2/meson[[2]]^2 - l^2/meson[[2]]^2)^2-4*hnl^2/meson[[2]]^2]
-  *UnitStep[meson[[2]] - l]];
-(* Meson main Parameters*)
 mesonparam[meson_,n_,mixe_,mixmu_,mixtau_]:={
 	ToString[meson[[5]]]<>":mayDecay = true",
-	ToString[meson[[5]]]<>":tau0 = "<>ToString[AccountingForm[Re[1/newwidth[meson, n, mixe, mixmu, mixtau]]*1/tfactor*mmc,16]],
+	ToString[meson[[5]]]<>":tau0 = "<>ToString[AccountingForm[Re[meson[[1]]*1/tfactor*mmc],16]],
 	ToString[meson[[5]]]<>":m0 = "<>ToString[AccountingForm[meson[[2]],16]]};
 (* Meson decay BRs*)
 mesondecay[meson_,n_,mixe_,mixmu_,mixtau_]:={
-	ToString[meson[[5]]]<>":oneChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,e,n,mixe,mixe,mixmu,mixtau],16]]<>" 0 -11 2000000001",
-	ToString[meson[[5]]]<>":addChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,mu,n,mixmu,mixe,mixmu,mixtau],16]]<>" 0 -13 2000000001",
-	ToString[meson[[5]]]<>":addChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,tau,n,mixtau,mixe,mixmu,mixtau],16]]<>" 0 -15 2000000001"};
-(* Meson_bar decay BRs. Para majorana neutrino 2000000001. Para Dirac -2000000001. *)
+	ToString[meson[[5]]]<>":oneChannel = 1 1 0 -15 16"};
 mesondecaybar[meson_,n_,mixe_,mixmu_,mixtau_]:={
-	ToString[meson[[5]]]<>":oneChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,e,n,mixe,mixe,mixmu,mixtau],16]]<>" 0 11 -2000000001",
-	ToString[meson[[5]]]<>":addChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,mu,n,mixmu,mixe,mixmu,mixtau],16]]<>" 0 13 -2000000001",
-	ToString[meson[[5]]]<>":addChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,tau,n,mixtau,mixe,mixmu,mixtau],16]]<>" 0 15 -2000000001"};
+	ToString[meson[[5]]]<>":oneChannel = 1 1 0 15 -16"};
 
 (******************************************************************)
 (************************* TAU DECAY ******************************)
@@ -345,6 +322,11 @@ Re[1/tau15[[1]]
 +tau2KstarN[n,mixtau]+tau2rhocN[n,mixtau]
 +tau2Nenue[n,mixtau]+tau2Nmunumu[n,mixtau]
 +tau2nutaueN[n,mixe]+tau2nutaumuN[n,mixmu]];
+tau2hnlw[n_,mixe_,mixmu_,mixtau_]:=
+Re[tau2PiN[n,mixtau]+tau2KN[n,mixtau]
++tau2KstarN[n,mixtau]+tau2rhocN[n,mixtau]
++tau2Nenue[n,mixtau]+tau2Nmunumu[n,mixtau]
++tau2nutaueN[n,mixe]+tau2nutaumuN[n,mixmu]];
 
 (* tau param *)
 tauparam[n_,mixe_,mixmu_,mixtau_]:=
@@ -352,38 +334,39 @@ tauparam[n_,mixe_,mixmu_,mixtau_]:=
 "15:tau0 = "<>ToString[AccountingForm[Re[1/tautotalw[n,mixe,mixmu,mixtau]]*1/tfactor*mmc,16]],
 "15:m0 = "<>ToString[AccountingForm[tau15[[2]],16]]};
 
+(* BRs a HNL. Escalados, suman 1. *)
 expbrtau[n_,mixe_,mixmu_,mixtau_]:={
 (*(1)-6 canales*)
-"15:oneChannel = 1 "<>ToString[AccountingForm[tau2PiN[n,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1521 2000000001 -211",
-"15:addChannel = 1 "<>ToString[AccountingForm[tau2KN[n,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1521 2000000001 -321",
-"15:addChannel = 1 "<>ToString[AccountingForm[tau2KstarN[n,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1521 2000000001 -323",
-"15:addChannel = 1 "<>ToString[AccountingForm[tau2rhocN[n,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1521 2000000001 -213",
-"15:addChannel = 1 "<>ToString[AccountingForm[tau2Nenue[n,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1531 2000000001 11 -12",
-"15:addChannel = 1 "<>ToString[AccountingForm[tau2Nmunumu[n,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1531 2000000001 13 -14",
-"15:addChannel = 1 "<>ToString[AccountingForm[tau2nutaueN[n,mixe]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1531 16 11 -2000000001",
-"15:addChannel = 1 "<>ToString[AccountingForm[tau2nutaumuN[n,mixmu]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1531 16 13 -2000000001"};
+"15:oneChannel = 1 "<>ToString[AccountingForm[tau2PiN[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1521 2000000001 -211",
+"15:addChannel = 1 "<>ToString[AccountingForm[tau2KN[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1521 2000000001 -321",
+"15:addChannel = 1 "<>ToString[AccountingForm[tau2KstarN[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1521 2000000001 -323",
+"15:addChannel = 1 "<>ToString[AccountingForm[tau2rhocN[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1521 2000000001 -213",
+"15:addChannel = 1 "<>ToString[AccountingForm[tau2Nenue[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 2000000001 11 -12",
+"15:addChannel = 1 "<>ToString[AccountingForm[tau2Nmunumu[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 2000000001 13 -14",
+"15:addChannel = 1 "<>ToString[AccountingForm[tau2nutaueN[n,mixe]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 16 11 -2000000001",
+"15:addChannel = 1 "<>ToString[AccountingForm[tau2nutaumuN[n,mixmu]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 16 13 -2000000001"};
 
 (* taubar BRs: NO ES NECESARIO PARA DIRAC, S\[CapitalIAcute] PARA MAJORANA *)
 expbrtaubar[n_,mixe_,mixmu_,mixtau_]:={
 (*(1)-6 canales*)
-"-15:oneChannel = 1 "<>ToString[AccountingForm[tau2PiN[n,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1521 -2000000001 211",
-"-15:addChannel = 1 "<>ToString[AccountingForm[tau2KN[n,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1521 -2000000001 321",
-"-15:addChannel = 1 "<>ToString[AccountingForm[tau2KstarN[n,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1521 -2000000001 323",
-"-15:addChannel = 1 "<>ToString[AccountingForm[tau2rhocN[n,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1521 -2000000001 213",
-"-15:addChannel = 1 "<>ToString[AccountingForm[tau2Nenue[n,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1531 -2000000001 -11 12",
-"-15:addChannel = 1 "<>ToString[AccountingForm[tau2Nmunumu[n,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1531 -2000000001 -13 14",
-"-15:addChannel = 1 "<>ToString[AccountingForm[tau2nutaueN[n,mixe]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1531 -16 -11 2000000001",
-"-15:addChannel = 1 "<>ToString[AccountingForm[tau2nutaumuN[n,mixmu]/tautotalw[n,mixe,mixmu,mixtau],16]]<>" 1531 -16 -13 2000000001"};
+"-15:oneChannel = 1 "<>ToString[AccountingForm[tau2PiN[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1521 -2000000001 211",
+"-15:addChannel = 1 "<>ToString[AccountingForm[tau2KN[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1521 -2000000001 321",
+"-15:addChannel = 1 "<>ToString[AccountingForm[tau2KstarN[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1521 -2000000001 323",
+"-15:addChannel = 1 "<>ToString[AccountingForm[tau2rhocN[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1521 -2000000001 213",
+"-15:addChannel = 1 "<>ToString[AccountingForm[tau2Nenue[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 -2000000001 -11 12",
+"-15:addChannel = 1 "<>ToString[AccountingForm[tau2Nmunumu[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 -2000000001 -13 14",
+"-15:addChannel = 1 "<>ToString[AccountingForm[tau2nutaueN[n,mixe]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 -16 -11 2000000001",
+"-15:addChannel = 1 "<>ToString[AccountingForm[tau2nutaumuN[n,mixmu]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 -16 -13 2000000001"};
 
-
-
-
+(* uma de verdaderos BRs *)
+expbrtaufactor[n_,mixe_,mixmu_,mixtau_]:={
+	"# tau BR factor: "<>ToString[AccountingForm[tau2hnlw[n,mixe,mixmu,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]}
 
 (********  HNL INI CONFIG  ********)
 hnlparams = {"2000000001:new",
 "2000000001:isResonance = false",
 "2000000001:name = HNL",
-"2000000001:antiName = HNLbar",
+"2000000001:antiName = HNLbar", (*ESTA LÍNEA LO DEFINE COMO DIRAC *)
 "2000000001:spinType = 2",
 "2000000001:chargeType = 0",
 "2000000001:colType = 0"}
@@ -411,6 +394,7 @@ AppendTo[names,name];
 Quiet[Export["./mathbrs/"<>name,
 	Join[
 		{"#"<>ToString[n]},
+		expbrtaufactor[n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
 		hnldecay[n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
 		mesonparam[d431,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
 		mesonparam[d411,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
