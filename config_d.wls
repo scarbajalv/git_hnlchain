@@ -65,7 +65,7 @@ width05[n_,l1_,l2_,u_]:=(gf^2 n^5)/(192Pi^3) u^2 i11[0,(l1/n)^2,(l2/n)^2];
 width06a[n_,l_,u_]:=(gf^2 n^5)/(96Pi^3) u^2 ((gll*glr+glr)i22[0,(l/n)^2,(l/n)^2]+(gll^2+glr^2+1+2gll)i11[0,(l/n)^2,(l/n)^2]);
 width06b[ n_,l_,u_]:=(gf^2 n^5)/(96Pi^3) u^2 ((gll*glr+0)i22[0,(l/n)^2,(l/n)^2]+(gll^2+glr^2+0)i11[0,(l/n)^2,(l/n)^2]);
 (* nu_i nu_j nubar_j  Notar que se ha dividido entre 3 para tomar cada término de la sumatoria de Pascoli2009 Eq. C.8 *)
-width07[n_,u_]:=u^2 (gf^2 n^5)/(3*96Pi^3); 
+width07[n_,u_]:=u^2 (gf^2 n^5)/(3*96Pi^3);
 
 (* (1) : N > l- P+ *)
 ePi[n_,u_]:=Re[width01[n,e,pi211,u]*UnitStep[n-pi211[[2]]-e]];
@@ -262,34 +262,28 @@ totalw[n_,mixe_,mixmu_,mixtau_]:=
 (* String with all the HNL BRs *)
 expbr[n_,mixe_,mixmu_,mixtau_]:=Join[expbrcc1[n,mixe,mixmu,mixtau],expbrnc1[n,mixe,mixmu,mixtau],expbrcc2[n,mixe,mixmu,mixtau],expbrnc2[n,mixe,mixmu,mixtau]];
 
-(* ========= Meson > l N ========== *)
+
+
+(*************** MESON DECAY ****************** *)
 (* meson decay BRs function *)
-
-
-width2body[meson_, l_, hnl_, u_]:=
-	Re[(gf^2*meson[[3]]^2*meson[[2]]*hnl^2)/(8*Pi)*meson[[4]]^2*u^2
-	*(1-hnl^2/meson[[2]]^2+2l^2/meson[[2]]^2+l^2/hnl^2(1-l^2/meson[[2]]^2))	
-	*Sqrt[(1 + hnl^2/meson[[2]]^2 - l^2/meson[[2]]^2)^2-4*hnl^2/meson[[2]]^2]
+width2body[meson_, l_, n_, u_]:=
+	Re[(gf^2*meson[[3]]^2*meson[[2]]*n^2)/(8*Pi)*meson[[4]]^2*u^2
+	*(1-n^2/meson[[2]]^2+2l^2/meson[[2]]^2+l^2/n^2(1-l^2/meson[[2]]^2))	
+	*Sqrt[(1 + n^2/meson[[2]]^2 - l^2/meson[[2]]^2)^2-4*n^2/meson[[2]]^2]
 	*UnitStep[meson[[2]] - l]];
-newwidth[meson_, hnl_, mixe_, mixmu_, mixtau_] :=  
+newwidth[meson_, n_, mixe_, mixmu_, mixtau_] :=  
 	Re[1/meson[[1]] 
-  + width2body[meson, e, hnl, mixe] 
-  + width2body[meson, mu, hnl, mixmu] 
-  + width2body[meson, tau, hnl, mixtau]];
-meson2bodybr[meson_, l_, hnl_, u_, mixe_, mixmu_, mixtau_] := 
-	Re[1/newwidth[meson, hnl, mixe, mixmu, mixtau]
-	*(gf^2*meson[[3]]^2*meson[[2]]*hnl^2)/(8*Pi)*meson[[4]]^2*u^2
-  *(1 - hnl^2/meson[[2]]^2 + 2 l^2/meson[[2]]^2 + l^2/hnl^2(1 - l^2/meson[[2]]^2))
-  *Sqrt[(1 + hnl^2/meson[[2]]^2 - l^2/meson[[2]]^2)^2-4*hnl^2/meson[[2]]^2]
-  *UnitStep[meson[[2]] - l]];
+  + width2body[meson, e, n, mixe] 
+  + width2body[meson, mu, n, mixmu] 
+  + width2body[meson, tau, n, mixtau]];
+newwidth2hnl[meson_, n_, mixe_, mixmu_, mixtau_] :=  
+	Re[width2body[meson, e, n, mixe] 
+  + width2body[meson, mu, n, mixmu] 
+  + width2body[meson, tau, n, mixtau]];
+  (* BRs solo a HNL, normalizados a 1 *)
+meson2bodybr[meson_, l_, n_, u_, mixe_, mixmu_, mixtau_] := 
+	Re[width2body[meson,l,n,u]/newwidth2hnl[meson, n, mixe, mixmu, mixtau]];
 
-
-
-(*
-meson2bodybr[meson_,l_,nhl_,u_]:=Re[meson[[1]]*(gf^2*meson[[3]]^2*meson[[2]]*nhl^2)/(8*Pi)*meson[[4]]^2 u^2
-	*(1-nhl^2/meson[[2]]^2+2 l^2/meson[[2]]^2+l^2/nhl^2 (1-l^2/meson[[2]]^2))
-	*Sqrt[(1+nhl^2/meson[[2]]^2-l^2/meson[[2]]^2)^2-4*nhl^2/meson[[2]]^2]*UnitStep[meson[[2]]-l-nhl]];
-*)
 
 (* Meson main Parameters*)
 mesonparam[meson_,n_,mixe_,mixmu_,mixtau_]:={
@@ -306,6 +300,8 @@ mesondecaybar[meson_,n_,mixe_,mixmu_,mixtau_]:={
 	ToString[meson[[5]]]<>":oneChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,e,n,mixe,mixe,mixmu,mixtau],16]]<>" 0 11 -2000000001",
 	ToString[meson[[5]]]<>":addChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,mu,n,mixmu,mixe,mixmu,mixtau],16]]<>" 0 13 -2000000001",
 	ToString[meson[[5]]]<>":addChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,tau,n,mixtau,mixe,mixmu,mixtau],16]]<>" 0 15 -2000000001"};
+expmesonbrfactor[meson_,n_,mixe_,mixmu_,mixtau_]:={
+	"# "<>ToString[meson[[5]]]<>" BR factor: "<>ToString[AccountingForm[newwidth2hnl[meson, n, mixe, mixmu, mixtau]/newwidth[meson, n, mixe, mixmu, mixtau],16]]};
 
 
 
@@ -342,6 +338,8 @@ AppendTo[names,name];
 Quiet[Export["./mathbrs/"<>name,
 	Join[
 		{"#"<>ToString[n]},
+		expmesonbrfactor[d431,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
+		expmesonbrfactor[d411,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
 		hnldecay[n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
 		mesonparam[d431,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
 		mesonparam[d411,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
