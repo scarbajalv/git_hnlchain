@@ -1,5 +1,6 @@
-adasd
 
-qweqweqwe
+int main(){
 
-asdasd
+	double aux = 3.23;
+
+}
