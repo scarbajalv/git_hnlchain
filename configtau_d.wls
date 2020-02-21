@@ -25,10 +25,10 @@ glr=xw;
 tau15 = {290.3*10^-15*tfactor, 1.77686, Null, Null, 15};
 
 (* charged pseudoscalar *)
-d431={504*10^-15*tfactor, 1.96834, 249.0*10^-3, ckm[[2,2]], 431};
-d431bar={504*10^-15*tfactor, 1.96834,249.0*10^-3, ckm[[2,2]], -431}; 
-d411={1040*10^-15*tfactor, 1.86958, 211.9*10^-3, ckm[[2,1]], 411};
-d411bar={1040*10^-15*tfactor, 1.86958, 211.9*10^-3, ckm[[2,1]], -411};
+d431={504*10^-15*tfactor, 1.96834, 249.0*10^-3, ckm[[2,2]], 431, 0.0548};
+d431bar={504*10^-15*tfactor, 1.96834,249.0*10^-3, ckm[[2,2]], -431, 0.0548}; 
+d411={1040*10^-15*tfactor, 1.86958, 211.9*10^-3, ckm[[2,1]], 411, 0.0012};
+d411bar={1040*10^-15*tfactor, 1.86958, 211.9*10^-3, ckm[[2,1]], -411, 0.0012};
 k321={1.238*10^-8*tfactor,493.677*10^-3,155.6*10^-3,ckm[[1,2]]}; 
 pi211={2.6*10^-8*tfactor,139.57061*10^-3,130.2*10^-3,ckm[[1,1]]}; 
 
@@ -268,6 +268,26 @@ expbr[n_,mixe_,mixmu_,mixtau_]:=Join[expbrcc1[n,mixe,mixmu,mixtau],expbrnc1[n,mi
 
 
 (*************** MESON DECAY ****************** *)
+(* meson decay BRs function *)
+width2body[meson_, l_, n_, u_]:=
+	Re[(gf^2*meson[[3]]^2*meson[[2]]*n^2)/(8*Pi)*meson[[4]]^2*u^2
+	*(1-n^2/meson[[2]]^2+2l^2/meson[[2]]^2+l^2/n^2(1-l^2/meson[[2]]^2))	
+	*Sqrt[(1 + n^2/meson[[2]]^2 - l^2/meson[[2]]^2)^2-4*n^2/meson[[2]]^2]
+	*UnitStep[meson[[2]] - l]];
+newwidth[meson_, n_, mixe_, mixmu_, mixtau_] :=  
+	Re[1/meson[[1]] 
+  + width2body[meson, e, n, mixe] 
+  + width2body[meson, mu, n, mixmu] 
+  + width2body[meson, tau, n, mixtau]];
+newwidth2hnl[meson_, n_, mixe_, mixmu_, mixtau_] :=  
+	Re[width2body[meson, e, n, mixe] 
+  + width2body[meson, mu, n, mixmu] 
+  + width2body[meson, tau, n, mixtau]];
+
+
+  (* BRs solo a HNL, normalizados a 1 *)
+meson2bodybr[meson_, l_, n_, u_, mixe_, mixmu_, mixtau_] := 
+	Re[width2body[meson,l,n,u]/newwidth2hnl[meson, n, mixe, mixmu, mixtau]];
 mesonparam[meson_,n_,mixe_,mixmu_,mixtau_]:={
 	ToString[meson[[5]]]<>":mayDecay = true",
 	ToString[meson[[5]]]<>":tau0 = "<>ToString[AccountingForm[Re[meson[[1]]*1/tfactor*mmc],16]],
@@ -277,6 +297,8 @@ mesondecay[meson_,n_,mixe_,mixmu_,mixtau_]:={
 	ToString[meson[[5]]]<>":oneChannel = 1 1 0 -15 16"};
 mesondecaybar[meson_,n_,mixe_,mixmu_,mixtau_]:={
 	ToString[meson[[5]]]<>":oneChannel = 1 1 0 15 -16"};
+expmesonbrfactor[meson_,n_,mixe_,mixmu_,mixtau_]:={
+	"# "<>ToString[meson[[5]]]<>" BR factor: "<>ToString[AccountingForm[newwidth2hnl[meson, n, mixe, mixmu, mixtau]/newwidth[meson, n, mixe, mixmu, mixtau],16]]};
 
 (******************************************************************)
 (************************* TAU DECAY ******************************)
@@ -346,7 +368,8 @@ expbrtau[n_,mixe_,mixmu_,mixtau_]:={
 "15:addChannel = 1 "<>ToString[AccountingForm[tau2nutaueN[n,mixe]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 16 11 -2000000001",
 "15:addChannel = 1 "<>ToString[AccountingForm[tau2nutaumuN[n,mixmu]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 16 13 -2000000001"};
 
-(* taubar BRs: NO ES NECESARIO PARA DIRAC, S\[CapitalIAcute] PARA MAJORANA *)
+(* taubar BRs: NO ES NECESARIO *)
+(*
 expbrtaubar[n_,mixe_,mixmu_,mixtau_]:={
 (*(1)-6 canales*)
 "-15:oneChannel = 1 "<>ToString[AccountingForm[tau2PiN[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1521 -2000000001 211",
@@ -357,10 +380,12 @@ expbrtaubar[n_,mixe_,mixmu_,mixtau_]:={
 "-15:addChannel = 1 "<>ToString[AccountingForm[tau2Nmunumu[n,mixtau]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 -2000000001 -13 14",
 "-15:addChannel = 1 "<>ToString[AccountingForm[tau2nutaueN[n,mixe]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 -16 -11 2000000001",
 "-15:addChannel = 1 "<>ToString[AccountingForm[tau2nutaumuN[n,mixmu]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 -16 -13 2000000001"};
+*)
 
 (* uma de verdaderos BRs *)
-expbrtaufactor[n_,mixe_,mixmu_,mixtau_]:={
-	"# tau BR factor: "<>ToString[AccountingForm[tau2hnlw[n,mixe,mixmu,mixtau]/tautotalw[n,mixe,mixmu,mixtau],16]]}
+expbrtaufactor[meson_,n_,mixe_,mixmu_,mixtau_]:={
+	"# BR factor "<>ToString[meson[[5]]]<>": "<>ToString[AccountingForm[(meson[[6]])*(meson[[1]]^(-1)/(meson[[1]]^(-1)
+		+newwidth2hnl[meson,n,mixe,mixmu,mixtau]))*(tau2hnlw[n,mixe,mixmu,mixtau]/tautotalw[n,mixe,mixmu,mixtau]),16]]}
 
 (********  HNL INI CONFIG  ********)
 hnlparams = {"2000000001:new",
@@ -394,7 +419,8 @@ AppendTo[names,name];
 Quiet[Export["./mathbrs/"<>name,
 	Join[
 		{"#"<>ToString[n]},
-		expbrtaufactor[n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
+		expbrtaufactor[d431,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
+		expbrtaufactor[d411,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
 		hnldecay[n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
 		mesonparam[d431,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
 		mesonparam[d411,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
@@ -403,8 +429,7 @@ Quiet[Export["./mathbrs/"<>name,
 		mesondecaybar[d431bar,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],	
 		mesondecaybar[d411bar,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
 		tauparam[n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
-		expbrtau[n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
-		expbrtaubar[n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]]
+		expbrtau[n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]]
 		]]];
 ,{n,paso,2-paso,paso}];
 AppendTo[names,""];
