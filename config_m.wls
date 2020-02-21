@@ -8,7 +8,7 @@ Print["Majorana HNL production & decay"];
 (* HNL DECAYS TOO MESONS/LEPTONS*)
 (* ESTE SCRIPT GENERA LOS ARCHIVOS PCONFIG QUE UTILIZA PYTHIA8. *)
 (* NOTAR QUE SIEMPRE TOMA COMO ARGUMENTO LA MASA DEL HNL *)
-e=.5*10^-3; mu=0.1056583; tau=1.776; leptons={e,mu,tau};
+e=.5*10^-3; mu=0.1056583; tau=1.776; leptons={e,mu,tau}; 
 tfactor=1.5193*10^24; (* Para pasar de s a GeV^-1 *)
 mmc=3*10^11; (* para pasar de s a mm/c *)
 ckm=({
