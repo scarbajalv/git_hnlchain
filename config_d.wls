@@ -301,7 +301,7 @@ mesondecaybar[meson_,n_,mixe_,mixmu_,mixtau_]:={
 	ToString[meson[[5]]]<>":addChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,mu,n,mixmu,mixe,mixmu,mixtau],16]]<>" 0 13 -2000000001",
 	ToString[meson[[5]]]<>":addChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,tau,n,mixtau,mixe,mixmu,mixtau],16]]<>" 0 15 -2000000001"};
 expmesonbrfactor[meson_,n_,mixe_,mixmu_,mixtau_]:={
-	"# "<>ToString[meson[[5]]]<>" BR factor: "<>ToString[AccountingForm[newwidth2hnl[meson, n, mixe, mixmu, mixtau]/newwidth[meson, n, mixe, mixmu, mixtau],16]]};
+	"# "<>ToString[meson[[5]]]<>" BR factor: "<>ToString[AccountingForm[newwidth2hnl[meson, n, mixe, mixmu, mixtau]/newwidth[meson, n, mixe, mixmu, mixtau],16]]}; 
 
 
 
