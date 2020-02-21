@@ -2,6 +2,6 @@
 int main(){
 
 	double aux = 3.23;
-	int a;
+	int a=2;
 
 }
