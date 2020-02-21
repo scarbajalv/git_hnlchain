@@ -2,7 +2,7 @@
 
 // ./X index
 
-
+  
 #include <iostream>
 #include <fstream>
 #include <string>
