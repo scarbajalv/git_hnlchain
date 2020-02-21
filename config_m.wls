@@ -226,29 +226,23 @@ expbr[n_,mixe_,mixmu_,mixtau_]:=Join[expbrcc1[n,mixe,mixmu,mixtau],expbrnc[n,mix
 (* meson decay BRs function *)
 
 
-width2body[meson_, l_, hnl_, u_]:=
-	Re[(gf^2*meson[[3]]^2*meson[[2]]*hnl^2)/(8*Pi)*meson[[4]]^2*u^2
-	*(1-hnl^2/meson[[2]]^2+2l^2/meson[[2]]^2+l^2/hnl^2(1-l^2/meson[[2]]^2))	
-	*Sqrt[(1 + hnl^2/meson[[2]]^2 - l^2/meson[[2]]^2)^2-4*hnl^2/meson[[2]]^2]
+width2body[meson_, l_, n_, u_]:=
+	Re[(gf^2*meson[[3]]^2*meson[[2]]*n^2)/(8*Pi)*meson[[4]]^2*u^2
+	*(1-n^2/meson[[2]]^2+2l^2/meson[[2]]^2+l^2/n^2(1-l^2/meson[[2]]^2))	
+	*Sqrt[(1 + n^2/meson[[2]]^2 - l^2/meson[[2]]^2)^2-4*n^2/meson[[2]]^2]
 	*UnitStep[meson[[2]] - l]];
-newwidth[meson_, hnl_, mixe_, mixmu_, mixtau_] :=  
+newwidth[meson_, n_, mixe_, mixmu_, mixtau_] :=  
 	Re[1/meson[[1]] 
-  + width2body[meson, e, hnl, mixe] 
-  + width2body[meson, mu, hnl, mixmu] 
-  + width2body[meson, tau, hnl, mixtau]];
-meson2bodybr[meson_, l_, hnl_, u_, mixe_, mixmu_, mixtau_] := 
-	Re[1/newwidth[meson, hnl, mixe, mixmu, mixtau]
-	*(gf^2*meson[[3]]^2*meson[[2]]*hnl^2)/(8*Pi)*meson[[4]]^2*u^2
-  *(1 - hnl^2/meson[[2]]^2 + 2 l^2/meson[[2]]^2 + l^2/hnl^2(1 - l^2/meson[[2]]^2))
-  *Sqrt[(1 + hnl^2/meson[[2]]^2 - l^2/meson[[2]]^2)^2-4*hnl^2/meson[[2]]^2]
-  *UnitStep[meson[[2]] - l]];
-
-
-(*
-meson2bodybr[meson_,l_,nhl_,u_]:=Re[meson[[1]]*(gf^2*meson[[3]]^2*meson[[2]]*nhl^2)/(8*Pi)*meson[[4]]^2 u^2
-	*(1-nhl^2/meson[[2]]^2+2 l^2/meson[[2]]^2+l^2/nhl^2 (1-l^2/meson[[2]]^2))
-	*Sqrt[(1+nhl^2/meson[[2]]^2-l^2/meson[[2]]^2)^2-4*nhl^2/meson[[2]]^2]*UnitStep[meson[[2]]-l-nhl]];
-*)
+  + width2body[meson, e, n, mixe] 
+  + width2body[meson, mu, n, mixmu] 
+  + width2body[meson, tau, n, mixtau]];
+newwidth2hnl[meson_, n_, mixe_, mixmu_, mixtau_] :=  
+	Re[width2body[meson, e, n, mixe] 
+  + width2body[meson, mu, n, mixmu] 
+  + width2body[meson, tau, n, mixtau]];
+  (* BRs solo a HNL, normalizados a 1 *)
+meson2bodybr[meson_, l_, n_, u_, mixe_, mixmu_, mixtau_] := 
+	Re[width2body[meson,l,n,u]/newwidth2hnl[meson, n, mixe, mixmu, mixtau]];
 
 (* Meson main Parameters*)
 mesonparam[meson_,n_,mixe_,mixmu_,mixtau_]:={
@@ -265,6 +259,9 @@ mesondecaybar[meson_,n_,mixe_,mixmu_,mixtau_]:={
 	ToString[meson[[5]]]<>":oneChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,e,n,mixe,mixe,mixmu,mixtau],16]]<>" 0 11 2000000001",
 	ToString[meson[[5]]]<>":addChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,mu,n,mixmu,mixe,mixmu,mixtau],16]]<>" 0 13 2000000001",
 	ToString[meson[[5]]]<>":addChannel = 1 "<>ToString[AccountingForm[meson2bodybr[meson,tau,n,mixtau,mixe,mixmu,mixtau],16]]<>" 0 15 2000000001"};
+expmesonbrfactor[meson_,n_,mixe_,mixmu_,mixtau_]:={
+	"# "<>ToString[meson[[5]]]<>" BR factor: "<>ToString[AccountingForm[newwidth2hnl[meson, n, mixe, mixmu, mixtau]/newwidth[meson, n, mixe, mixmu, mixtau],16]]};
+
 
 
 
@@ -272,7 +269,7 @@ mesondecaybar[meson_,n_,mixe_,mixmu_,mixtau_]:={
 hnlparams = {"2000000001:new",
 "2000000001:isResonance = false",
 "2000000001:name = HNL",
-"#2000000001:antiName = HNLbar",
+"#2000000001:antiName = HNLbar", (* ESTO LO DEFINE COMO Majorana*)
 "2000000001:spinType = 2",
 "2000000001:chargeType = 0",
 "2000000001:colType = 0"}
@@ -301,6 +298,8 @@ AppendTo[names,name];
 Quiet[Export["./mathbrs/"<>name,
 	Join[
 		{"#"<>ToString[n]},
+		expmesonbrfactor[d431,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
+		expmesonbrfactor[d411,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
 		hnldecay[n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
 		mesonparam[d431,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
 		mesonparam[d411,n,Sqrt[fmixe[n]],Sqrt[fmixmu[n]],Sqrt[fmixtau[n]]],
