@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# ./launch-root-append ebeam nroot_i root_f
+
+# ./root-append ebeam nrooti
+# Añade la data del archivo ebeam-nrooti.root al archivo ebeam.root
+
+make root-append
+
+i=$2
+
+while [ $i -le $3 ]
+do
+   printf "$i "
+   ./root-append $1 $i 
+   i=$(( i + 1 )) # increase number by 1 
+done
+
+echo ""
