@@ -284,8 +284,6 @@ newwidth2hnl[meson_, n_, mixe_, mixmu_, mixtau_] :=
   + width2body[meson, mu, n, mixmu] 
   + width2body[meson, tau, n, mixtau]];
 
-
-  (* BRs solo a HNL, normalizados a 1 *)
 meson2bodybr[meson_, l_, n_, u_, mixe_, mixmu_, mixtau_] := 
 	Re[width2body[meson,l,n,u]/newwidth2hnl[meson, n, mixe, mixmu, mixtau]];
 mesonparam[meson_,n_,mixe_,mixmu_,mixtau_]:={
@@ -297,8 +295,6 @@ mesondecay[meson_,n_,mixe_,mixmu_,mixtau_]:={
 	ToString[meson[[5]]]<>":oneChannel = 1 1 0 -15 16"};
 mesondecaybar[meson_,n_,mixe_,mixmu_,mixtau_]:={
 	ToString[meson[[5]]]<>":oneChannel = 1 1 0 15 -16"};
-expmesonbrfactor[meson_,n_,mixe_,mixmu_,mixtau_]:={
-	"# "<>ToString[meson[[5]]]<>" BR factor: "<>ToString[AccountingForm[newwidth2hnl[meson, n, mixe, mixmu, mixtau]/newwidth[meson, n, mixe, mixmu, mixtau],16]]};
 
 (******************************************************************)
 (************************* TAU DECAY ******************************)
@@ -382,7 +378,7 @@ expbrtaubar[n_,mixe_,mixmu_,mixtau_]:={
 "-15:addChannel = 1 "<>ToString[AccountingForm[tau2nutaumuN[n,mixmu]/tau2hnlw[n,mixe,mixmu,mixtau],16]]<>" 1531 -16 -13 2000000001"};
 *)
 
-(* uma de verdaderos BRs *)
+(* FACTOR BRs *)
 expbrtaufactor[meson_,n_,mixe_,mixmu_,mixtau_]:={
 	"# BR factor "<>ToString[meson[[5]]]<>": "<>ToString[AccountingForm[(meson[[6]])*(meson[[1]]^(-1)/(meson[[1]]^(-1)
 		+newwidth2hnl[meson,n,mixe,mixmu,mixtau]))*(tau2hnlw[n,mixe,mixmu,mixtau]/tautotalw[n,mixe,mixmu,mixtau]),16]]}
