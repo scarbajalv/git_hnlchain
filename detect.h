@@ -36,7 +36,7 @@ int detect(double x[3], double p[3], double offaxis){
 	eta[4][0]=0;	eta[4][1]=0;	eta[4][2]=1;
 	eta[5][0]=0;	eta[5][1]=-1;	eta[5][2]=0;
 
-	bool detected=false;
+	bool detected=false; 
 	vector  <vector <double>> points;
 	vector <double> row;
 
@@ -93,6 +93,128 @@ int detect(double x[3], double p[3], double offaxis){
 	}
 	*/
 	
+
+	return detected;
+
+}
+
+int detectmpd(double x[3], double p[3], double offaxis){
+
+	bool detected = false;
+
+	double unitfactor = 1; // default Pythia8: 1000
+
+	double z0Argoncube = 10; // default DUNE: 574
+
+	double l = (5 + z0Argoncube) * unitfactor;
+	double r = 2.5 * unitfactor;
+	double lmpd = 5 * unitfactor;
+	
+
+
+	double xsol[2];
+	double ysol[2];
+	double zsol[2];
+
+	double ysol2a;
+	double zsol2a;
+	double ysol2b;
+	double zsol2b;
+
+	// LADO DEL CILINDRO
+
+	// Discriminante
+	double discr = -4*(
+										pow(r,2)*(-1+pow(p[1],2)-pow(p[2],2))
+										+2*r*p[1]*(l*p[1]+p[2]*x[1]-p[1]*x[2])
+										+pow(l*p[1]+p[2]*x[1]-p[1]*x[2],2)
+										);
+
+	if (discr >= 0){
+
+		xsol[0]	=	x[0]-(1/(pow(p[1],2)+pow(p[2],2)))*p[0]*
+							(
+								p[1]*x[1]-p[2]*(l+r-x[2])
+								+sqrt(
+									-pow(l,2)*pow(p[1],2)+pow(r,2)*pow(p[2],2)-pow(p[2]*x[1]-p[1]*x[2],2)
+									-2*l*p[1]*(r*p[1]+p[2]*x[1]-p[1]*x[2])
+									+2*r*p[1]*(-p[2]*x[1]+p[1]*x[2])
+									)
+							);
+		xsol[1]	=	x[0]+(1/(pow(p[1],2)+pow(p[2],2)))*p[0]*
+							(
+								-p[1]*x[1]+p[2]*(l+r-x[2])
+								+sqrt(
+									-pow(l,2)*pow(p[1],2)+pow(r,2)*pow(p[2],2)-pow(p[2]*x[1]-p[1]*x[2],2)
+									-2*l*p[1]*(r*p[1]+p[2]*x[1]-p[1]*x[2])
+									+2*r*p[1]*(-p[2]*x[1]+p[1]*x[2])
+									)
+							);
+
+		ysol[0] = (1/(pow(p[1],2)+pow(p[2],2)))*
+							(
+								l*p[1]*p[2] + p[2]*(r*p[1]+p[2]*x[1]-p[1]*x[2])
+								-p[1]*sqrt(
+									-pow(l,2)*pow(p[1],2)+pow(r,2)*pow(p[2],2)-pow(p[2]*x[1]-p[1]*x[2],2)
+									-2*l*p[1]*(r*p[1]+p[2]*x[1]-p[1]*x[2])
+									+2*r*p[1]*(-p[2]*x[1]+p[1]*x[2])
+									)
+							);
+		ysol[1] = (1/(pow(p[1],2)+pow(p[2],2)))*
+							(
+								l*p[1]*p[2] + p[2]*(r*p[1]+p[2]*x[1]-p[1]*x[2])
+								+p[1]*sqrt(
+									-pow(l,2)*pow(p[1],2)+pow(r,2)*pow(p[2],2)-pow(p[2]*x[1]-p[1]*x[2],2)
+									-2*l*p[1]*(r*p[1]+p[2]*x[1]-p[1]*x[2])
+									+2*r*p[1]*(-p[2]*x[1]+p[1]*x[2])
+									)
+							);
+
+		zsol[0]	=	x[2]-(1/(pow(p[1],2)+pow(p[2],2)))*p[2]*
+							(
+								p[1]*x[1]-p[2]*(l+r-x[2])
+								+sqrt(
+									-pow(l,2)*pow(p[1],2)+pow(r,2)*pow(p[2],2)-pow(p[2]*x[1]-p[1]*x[2],2)
+									-2*l*p[1]*(r*p[1]+p[2]*x[1]-p[1]*x[2])
+									+2*r*p[1]*(-p[2]*x[1]+p[1]*x[2])
+									)
+							);
+		zsol[1]	=	x[2]+(1/(pow(p[1],2)+pow(p[2],2)))*p[2]*
+							(
+								-p[1]*x[1]+p[2]*(l+r-x[2])
+								+sqrt(
+									-pow(l,2)*pow(p[1],2)+pow(r,2)*pow(p[2],2)-pow(p[2]*x[1]-p[1]*x[2],2)
+									-2*l*p[1]*(r*p[1]+p[2]*x[1]-p[1]*x[2])
+									+2*r*p[1]*(-p[2]*x[1]+p[1]*x[2])
+									)
+							);
+
+		if ((-0.5*lmpd + offaxis <= xsol[0]) && (xsol[0] <= 0.5*lmpd + offaxis)){
+			detected = true;
+			cout << "cilindro: "<< xsol[0] <<", "<< ysol[0] <<", " << zsol [0] << endl;
+		}
+		if ((-0.5*lmpd + offaxis <= xsol[1]) && (xsol[1] <= 0.5*lmpd + offaxis)){
+			detected = true;
+			cout << "cilindro: "<< xsol[1] <<", " << ysol[1] <<", " << zsol [1] << endl;
+		}	
+
+		// Tapas del cilindro
+
+		if (p[0]!=0){
+			ysol2a = x[1] + p[1]*(0.5*lmpd + offaxis - x[0])/p[0];
+			zsol2a = x[2] + p[2]*(0.5*lmpd + offaxis - x[0])/p[0];
+			ysol2b = x[1] + p[1]*(-0.5*lmpd + offaxis - x[0])/p[0];
+			zsol2b = x[2] + p[2]*(-0.5*lmpd + offaxis - x[0])/p[0];
+			if (pow(ysol2a,2) + pow(zsol2a - l - r, 2) <= pow(r,2)){
+				detected = true;
+				cout << "tapas: " << 0.5*lmpd + offaxis << ", " << ysol2a << ", " << zsol2a << endl;
+			}
+			if (pow(ysol2b,2) + pow(zsol2b - l - r, 2) <= pow(r,2)){
+				detected = true;
+				cout << "tapas: " << -0.5*lmpd + offaxis << ", " << ysol2b << ", " << zsol2b << endl;
+			}
+		}
+	}
 
 	return detected;
 
