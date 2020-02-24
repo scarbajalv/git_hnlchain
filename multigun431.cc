@@ -340,12 +340,13 @@ int main(int argc, char *argv[]) {
  	// Create ROOT variables
  	double rebeam, rmhnl, roffaxis, rid, rtProd, rxProd, ryProd, rzProd, rtDec, rxDec, ryDec, rzDec, re,
 	rpx, rpy, rpz, rpT, rtheta, rphi, ry, reta, rpindex, rpmother;
-  	int mother1, mother2, auxpdg;
+  	int mother1, mother2, auxpdg, rdet_id;
 
 	TTree nu("nu","nu");
 	nu.Branch("ebeam",&rebeam,"rebeam/D");
 	nu.Branch("mhnl",&rmhnl,"rmhnl/D");
 	nu.Branch("offaxis",&roffaxis,"roffaxis/D");
+	nu.Branch("det_id",&rdet_id,"rdet_id/I");
 	nu.Branch("id",&rid,"rid/D");
 	nu.Branch("tProd",&rtProd,"rtProd/D");
 	nu.Branch("xProd",&rxProd,"rxProd/D");
@@ -374,7 +375,8 @@ int main(int argc, char *argv[]) {
 	double z0det = 574; // z0 (m)
 	double unitfactor = 1000; // 1000 for mm
 
-	double	xidet, xfdet, yidet ,	yfdet, zidet,	zfdet;
+	double	xidet, xfdet, yidet , yfdet, zidet,	zfdet;
+	double	ximpd, xfmpd, rmpd , czmpd, cympd;
 	
 // ******************************************************************
 // ******************** BEGIN DATA ANALYSIS *************************	
@@ -396,31 +398,80 @@ int main(int argc, char *argv[]) {
 		zidet = z0det*unitfactor,
 		zfdet = (z0det+l)*unitfactor;
 
+		ximpd = (-w/2+offaxis)*unitfactor;
+		xfmpd = (w/2+offaxis)*unitfactor;
+		rmpd = 2.5*unitfactor;
+		czmpd = (z0det+l+rmpd)*unitfactor;
+		cympd = 0;
+
+
 		// Seleccionar neutrinos que ingresan al detector
 		for(int i=0; i<nuallvector.size(); ++i){
 			double xx[3]={nuallvector[i][2],nuallvector[i][3],nuallvector[i][4]};
 			double pp[3]={nuallvector[i][10],nuallvector[i][11],nuallvector[i][12]};				
-			if (detect(xx,pp,offaxis)){				
+			// Atraviesa el LArTPC y el MPD
+			if (detect(xx,pp,offaxis)&&detectmpd(xx,pp,offaxis)){				
 				row.clear();
+				rdet_id = 2;
 				for (int j = 0; j < 20; ++j){
 					row.push_back(nuallvector[i][j]);
 				}
-				row.push_back(offaxis);
+				row.push_back(offaxis); // j=20
+				row.push_back(rdet_id); // j=21
+				nudetvector.push_back(row);
+			} // en of nudet
+			// Atraviesa solo el LArTPC
+			if (detect(xx,pp,offaxis)&&!detectmpd(xx,pp,offaxis)){				
+				row.clear();
+				rdet_id = 0;
+				for (int j = 0; j < 20; ++j){
+					row.push_back(nuallvector[i][j]);
+				}
+				row.push_back(offaxis); // j=20
+				row.push_back(rdet_id); // j=21
+				nudetvector.push_back(row);
+			} // en of nudet
+			// Atraviesa solo el MPD
+			if (detectmpd(xx,pp,offaxis)&!detect(xx,pp,offaxis)){
+				row.clear();
+				rdet_id = 1;
+				for (int j = 0; j < 20; ++j){
+					row.push_back(nuallvector[i][j]);
+				}
+				row.push_back(offaxis); // j=20
+				row.push_back(rdet_id); // j=21
 				nudetvector.push_back(row);
 			} // en of nudet
 		}
 
-		// Seleccionar los HNL que decaen dentro del detector
+		// HNL decay dentro de LarTPC
 		for(int i=0; i<hnlallvector.size(); ++i){			
-			
 			if (hnlallvector[i][6]>xidet && hnlallvector[i][6]<xfdet &&
-					hnlallvector[i][7]>yidet && hnlallvector[i][7]<yfdet &&
-					hnlallvector[i][8]>zidet && hnlallvector[i][8]<zfdet){				
+				hnlallvector[i][7]>yidet && hnlallvector[i][7]<yfdet &&
+				hnlallvector[i][8]>zidet && hnlallvector[i][8]<zfdet){
 				row.clear();
+				rdet_id = 0;
 				for (int j = 0; j < 20; ++j){
 					row.push_back(hnlallvector[i][j]);
 				}
 				row.push_back(offaxis);
+				row.push_back(rdet_id); // j=21
+				hnldetvector.push_back(row);
+			} // en of nudet
+		}
+
+		// HNL decay dentro de MPD
+		for(int i=0; i<hnlallvector.size(); ++i){
+			if (hnlallvector[i][6]>ximpd && hnlallvector[i][6]<xfmpd &&
+				(pow(hnlallvector[i][7]-cympd,2)+pow(hnlallvector[i][8]-czmpd,2) 
+					< pow(rmpd,2)) ){
+				row.clear();
+				rdet_id = 1;
+				for (int j = 0; j < 20; ++j){
+					row.push_back(hnlallvector[i][j]);
+				}
+				row.push_back(offaxis);
+				row.push_back(rdet_id); // j=21
 				hnldetvector.push_back(row);
 			} // en of nudet
 		}
@@ -431,7 +482,8 @@ int main(int argc, char *argv[]) {
 			rebeam = ebeam;
 			rmhnl = hnlmass;
 			roffaxis = nudetvector[i][20];
-			rid = nudetvector[i][0];
+			rdet_id = nudetvector[i][21];
+			rid = nudetvector[i][0];			
 			rtProd = nudetvector[i][1];
 			rxProd = nudetvector[i][2]; 
 			ryProd = nudetvector[i][3]; 
@@ -458,6 +510,7 @@ int main(int argc, char *argv[]) {
 			rebeam = ebeam;
 			rmhnl = hnlmass;
 			roffaxis = hnldetvector[i][20];
+			rdet_id = nudetvector[i][21];
 			rid = hnldetvector[i][0];
 			rtProd = hnldetvector[i][1];
 			rxProd = hnldetvector[i][2]; 
