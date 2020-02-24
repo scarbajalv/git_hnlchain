@@ -1,3 +1,6 @@
+#include <vector>
+#include <cmath> 
+
 using namespace std; 
 
 int detect(double x[3], double p[3], double offaxis){
@@ -102,14 +105,13 @@ int detectmpd(double x[3], double p[3], double offaxis){
 
 	bool detected = false;
 
-	double unitfactor = 1; // default Pythia8: 1000
+	double unitfactor = 1000; // default Pythia8: 1000
 
-	double z0Argoncube = 10; // default DUNE: 574
+	double z0Argoncube = 574; // default DUNE: 574
 
-	double l = (5 + z0Argoncube) * unitfactor;
+	double l = (5 + z0Argoncube) * unitfactor; // largo del cilindro
 	double r = 2.5 * unitfactor;
 	double lmpd = 5 * unitfactor;
-	
 
 
 	double xsol[2];
@@ -189,29 +191,29 @@ int detectmpd(double x[3], double p[3], double offaxis){
 									)
 							);
 
-		if ((-0.5*lmpd + offaxis <= xsol[0]) && (xsol[0] <= 0.5*lmpd + offaxis)){
+		if ((-0.5*lmpd + offaxis*unitfactor <= xsol[0]) && (xsol[0] <= 0.5*lmpd + offaxis*unitfactor)){
 			detected = true;
-			cout << "cilindro: "<< xsol[0] <<", "<< ysol[0] <<", " << zsol [0] << endl;
+			//cout << "cilindro: "<< xsol[0] <<", "<< ysol[0] <<", " << zsol [0] << endl;
 		}
-		if ((-0.5*lmpd + offaxis <= xsol[1]) && (xsol[1] <= 0.5*lmpd + offaxis)){
+		if ((-0.5*lmpd + offaxis*unitfactor <= xsol[1]) && (xsol[1] <= 0.5*lmpd + offaxis*unitfactor)){
 			detected = true;
-			cout << "cilindro: "<< xsol[1] <<", " << ysol[1] <<", " << zsol [1] << endl;
+			//cout << "cilindro: "<< xsol[1] <<", " << ysol[1] <<", " << zsol [1] << endl;
 		}	
 
 		// Tapas del cilindro
 
 		if (p[0]!=0){
-			ysol2a = x[1] + p[1]*(0.5*lmpd + offaxis - x[0])/p[0];
-			zsol2a = x[2] + p[2]*(0.5*lmpd + offaxis - x[0])/p[0];
-			ysol2b = x[1] + p[1]*(-0.5*lmpd + offaxis - x[0])/p[0];
-			zsol2b = x[2] + p[2]*(-0.5*lmpd + offaxis - x[0])/p[0];
+			ysol2a = x[1] + p[1]*(0.5*lmpd + offaxis*unitfactor - x[0])/p[0];
+			zsol2a = x[2] + p[2]*(0.5*lmpd + offaxis*unitfactor - x[0])/p[0];
+			ysol2b = x[1] + p[1]*(-0.5*lmpd + offaxis*unitfactor - x[0])/p[0];
+			zsol2b = x[2] + p[2]*(-0.5*lmpd + offaxis*unitfactor - x[0])/p[0];
 			if (pow(ysol2a,2) + pow(zsol2a - l - r, 2) <= pow(r,2)){
 				detected = true;
-				cout << "tapas: " << 0.5*lmpd + offaxis << ", " << ysol2a << ", " << zsol2a << endl;
+				//cout << "tapas: " << 0.5*lmpd + offaxis << ", " << ysol2a << ", " << zsol2a << endl;
 			}
 			if (pow(ysol2b,2) + pow(zsol2b - l - r, 2) <= pow(r,2)){
 				detected = true;
-				cout << "tapas: " << -0.5*lmpd + offaxis << ", " << ysol2b << ", " << zsol2b << endl;
+				//cout << "tapas: " << -0.5*lmpd + offaxis << ", " << ysol2b << ", " << zsol2b << endl;
 			}
 		}
 	}
