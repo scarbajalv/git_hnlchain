@@ -367,17 +367,34 @@ int main(int argc, char *argv[]) {
 	nu.Branch("eta",&reta,"reta/D");
 	nu.Branch("pindex",&rpindex,"rpindex/D");
 	nu.Branch("pmother",&rpmother,"rpmother/D");
+	
+	double unitfactor = 1000; // 1000 for mm
 
-	// Define detector geometry
+	// Define LarTPC detector geometry
 	double w = 7.; // width X (m)
 	double h = 3.; // height Y (m)
 	double l = 5.; // length Z (m)
 	double z0det = 574; // z0 (m)
-	double unitfactor = 1000; // 1000 for mm
+
+	// Define LarTPC detector geometry
+	double w_mpd = 5.; // largo del cilindro (m)
+	double r = 0.5*5; // radio (m)
+
 
 	double	xidet, xfdet, yidet , yfdet, zidet,	zfdet;
 	double	ximpd, xfmpd, rmpd , czmpd, cympd;
+	int counter0=0, counter1=0, counter2=0;
+	int counterhnl0=0, counterhnl1=0;
 	
+	// DEBUG
+  	ofstream debugx0("debugx0.dat"); 
+  	ofstream debugp0("debugp0.dat");
+  	ofstream debugx1("debugx1.dat");
+  	ofstream debugp1("debugp1.dat");
+	ofstream debugx2("debugx2.dat");
+  	ofstream debugp2("debugp2.dat");
+
+
 // ******************************************************************
 // ******************** BEGIN DATA ANALYSIS *************************	
 
@@ -388,8 +405,13 @@ int main(int argc, char *argv[]) {
  		row.clear();
  		nudetvector.clear();
  		hnldetvector.clear();
+ 		counter0=0;
+ 		counter1=0;
+ 		counter2=0;
+ 		counterhnl0=0;
+ 		counterhnl1=0;
 
-	 	int  offaxis = deltaoffaxis*ioffaxis;
+	 	int  offaxis = deltaoffaxis*ioffaxis; // ¡está en metros!
 
 		xidet = (-w/2+offaxis)*unitfactor, 
 		xfdet = (w/2+offaxis)*unitfactor, 
@@ -398,9 +420,9 @@ int main(int argc, char *argv[]) {
 		zidet = z0det*unitfactor,
 		zfdet = (z0det+l)*unitfactor;
 
-		ximpd = (-w/2+offaxis)*unitfactor;
-		xfmpd = (w/2+offaxis)*unitfactor;
-		rmpd = 2.5*unitfactor;
+		ximpd = (-w_mpd/2+offaxis)*unitfactor;
+		xfmpd = (w_mpd/2+offaxis)*unitfactor;
+		rmpd = r*unitfactor;
 		czmpd = (z0det+l+rmpd)*unitfactor;
 		cympd = 0;
 
@@ -419,6 +441,7 @@ int main(int argc, char *argv[]) {
 				row.push_back(offaxis); // j=20
 				row.push_back(rdet_id); // j=21
 				nudetvector.push_back(row);
+				counter2++;
 			} // en of nudet
 			// Atraviesa solo el LArTPC
 			if (detect(xx,pp,offaxis)&&!detectmpd(xx,pp,offaxis)){				
@@ -430,9 +453,10 @@ int main(int argc, char *argv[]) {
 				row.push_back(offaxis); // j=20
 				row.push_back(rdet_id); // j=21
 				nudetvector.push_back(row);
+				counter0++;
 			} // en of nudet
 			// Atraviesa solo el MPD
-			if (detectmpd(xx,pp,offaxis)&!detect(xx,pp,offaxis)){
+			if (detectmpd(xx,pp,offaxis)&&!detect(xx,pp,offaxis)){
 				row.clear();
 				rdet_id = 1;
 				for (int j = 0; j < 20; ++j){
@@ -441,6 +465,7 @@ int main(int argc, char *argv[]) {
 				row.push_back(offaxis); // j=20
 				row.push_back(rdet_id); // j=21
 				nudetvector.push_back(row);
+				counter1++;
 			} // en of nudet
 		}
 
@@ -457,6 +482,7 @@ int main(int argc, char *argv[]) {
 				row.push_back(offaxis);
 				row.push_back(rdet_id); // j=21
 				hnldetvector.push_back(row);
+				counterhnl0++;
 			} // en of nudet
 		}
 
@@ -473,6 +499,7 @@ int main(int argc, char *argv[]) {
 				row.push_back(offaxis);
 				row.push_back(rdet_id); // j=21
 				hnldetvector.push_back(row);
+				counterhnl1++;
 			} // en of nudet
 		}
 
@@ -531,24 +558,62 @@ int main(int argc, char *argv[]) {
 			reta = hnldetvector[i][17];
 			rpindex = hnldetvector[i][18];
 			rpmother = hnldetvector[i][19];
-			nu.Fill();
+			nu.Fill(); 
 		}
 
 		//cout<<nuallvector[j][0]<<endl;
-		cout	<<"off-axis = "<<offaxis<<" => "
-					<<"Detected Neutrinos: "<<nudetvector.size()<<endl
-					<<"HNL decay in detector: "<<hnldetvector.size()<<endl<<endl;
+		cout	<<"off-axis = "<<offaxis<<": " << endl
+					<<"Neutrinos only in LarTPC: "<<counter0<<endl
+					<<"Neutrinos only in MPD: "<<counter1<<endl
+					<<"Neutrinos in LarTPC & MPD: "<<counter2<<endl
+					<<"HNL decay in LarTPC: "<<counterhnl0<<endl
+					<<"HNL decay in MPD: "<<counterhnl1<<endl<<endl;
 
 		ioffaxis = ioffaxis + 1;
 
-	} // End of offaxis loop
-	
+		for (int i=0; i<nudetvector.size(); ++i){	  		
+	  		if(nudetvector[i][21]==0){
+	  			debugx0 	<< nudetvector[i][2] << " " 
+		  					<< nudetvector[i][3] << " " 
+		  					<< nudetvector[i][4] << " "
+		  					<< nudetvector[i][20] << endl;	  					
+				debugp0 	<< nudetvector[i][10] << " " 
+		  					<< nudetvector[i][11] << " " 
+		  					<< nudetvector[i][12] << " "
+		  					<< nudetvector[i][20] << endl;	  					
+	  		}
+	  		if(nudetvector[i][21]==1){
+	  			debugx1 	<< nudetvector[i][2] << " " 
+		  					<< nudetvector[i][3] << " " 
+		  					<< nudetvector[i][4] << " "
+		  					<< nudetvector[i][20] << endl;	  					
+				debugp1 	<< nudetvector[i][10] << " " 
+		  					<< nudetvector[i][11] << " " 
+		  					<< nudetvector[i][12] << " "
+		  					<< nudetvector[i][20] << endl;	  					
+	  		}
+	  		if(nudetvector[i][21]==2){
+	  			debugx2 	<< nudetvector[i][2] << " " 
+		  					<< nudetvector[i][3] << " " 
+		  					<< nudetvector[i][4] << " "
+		  					<< nudetvector[i][20] << endl;	  					
+				debugp2 	<< nudetvector[i][10] << " " 
+		  					<< nudetvector[i][11] << " " 
+		  					<< nudetvector[i][12] << " "
+		  					<< nudetvector[i][20] << endl;	  					
+	  		}
+		}
+  	
 
-	// Write Root File
+
+	} // End of offaxis loop
+
+
+  	// Write Root File
   	cout<<"Exporting root file..."<<endl;
   	outFile.cd();
   	nu.Write("",2);
-   
+
 	cout<<endl<<"SUCCESS!"<<endl;
 
   // Done.
