@@ -1,5 +1,5 @@
 // ./multigunvX ebeam mHNL.dat maxoffaxis deltaoffaxis seed nroot index
-
+ 
 // Basado en main21.cc
 // Single particle gun a partir de un idata file que contiene
 // vectores del tipo (e,theta,phi) de una partícula idGun.
@@ -25,6 +25,7 @@
 using namespace Pythia8;
 
 #include "detect.h"
+#include "cpp-getEnv.h"
 
 // ---------------- COUNT LINES -----------------
 /// Function to count lines of file.
@@ -87,48 +88,21 @@ int main(int argc, char *argv[]) {
 	Pythia pythia; 
 	
 	if(argc<7){
-		cout<<"FATAL ERROR: Se deben ingresar: ebeam mHNL.dat maxoffaxis deltaoffaxis seed nroot index"<<endl;
+		cout<<"FATAL ERROR: ./X ebeam mHNL.dat maxoffaxis deltaoffaxis seed nroot index"<<endl;
 		exit (EXIT_FAILURE);
 	}
 	
 	// *********************** MAIN PARAMETERS ************************
 	
-	stringstream idata_ss;
-	idata_ss << "./mainconfig/d431data-120-" << argv[7] << ".dat";
-	string idata_s = idata_ss.str();
-	char idata_c[idata_s.size()+1];
-	strcpy(idata_c, idata_s.c_str());
-
-	fstream idata(idata_s, std::ios_base::in);
+	int 	idGun	=	431;
+	int 	nList = 1;
+	bool	hasLifetime = true; ///if false, decays at origin.
+	int 	idhnl  = 2000000001;
+	bool 	atRest = false; /// if true, ignores energy and sets eeGun=m	
 	
-	int jEvents = countlines(idata_c);
-	
-	/*
-	fstream idata("./mainconfig/d431data-120-1.dat", std::ios_base::in);
-	
-	int jEvents = countlines("./mainconfig/d431data-120-1.dat");
-	*/
-	
-	int idGun  = 431;
-
-		
-	int nEvent = jEvents;  /// less or equal than jEvents
 	
 	// ****************************************************************
-  
-  int nList = 1;
-  bool   hasLifetime =  true; ///if false, decays at origin.
-
-  int 	 idhnl  = 2000000001;
-  bool   atRest = false; /// if true, ignores energy and sets eeGun=m
-  
-
-  
- 	/// pythia config files
-  
- 	pythia.readFile("./mainconfig/pythiaconfig.ini");
-	pythia.readFile(argv[2]); /// Leer el otro config file como argumento.
-	
+   
 	// Read ebeam
 	stringstream ebeam_ss;
 	ebeam_ss << argv[1];
@@ -142,11 +116,11 @@ int main(int argc, char *argv[]) {
 	massstring=massstring.substr(1,massstring.size());
 	double hnlmass=stod(massstring);
 
-	 string maxoffaxiss=argv[3];
-  	int maxoffaxis = stoi(maxoffaxiss);
+	string maxoffaxiss=argv[3];
+  int maxoffaxis = stoi(maxoffaxiss);
 
-  	string deltaoffaxiss=argv[4];
-	int  deltaoffaxis = stoi(deltaoffaxiss) ;
+  string deltaoffaxiss=argv[4];
+	int deltaoffaxis = stoi(deltaoffaxiss) ;
 
 	// Set random seed as 3th argument - eg 001
 	string seed = argv[5];
@@ -162,7 +136,21 @@ int main(int argc, char *argv[]) {
 	char nroot_c[nroot_s.size()+1];
 	strcpy(nroot_c, nroot_s.c_str());
 	TFile outFile(nroot_c, "recreate");
+
+	stringstream idata_ss;
+	idata_ss << getEnv("mainconfig") <<"d431data-120-" << argv[7] << ".dat";	
+  string idata_s = idata_ss.str();
+  char idata_c[idata_s.size()+1];
+	strcpy(idata_c, idata_s.c_str());
+	fstream idata(idata_s, std::ios_base::in);	
+	int jEvents = countlines(idata_c);
+	int nEvent = jEvents;  /// less or equal than jEvents
   
+  // pythia config files
+  
+ 	pythia.readFile("./mainconfig/pythiaconfig.ini");
+	pythia.readFile(argv[2]); /// Leer el otro config file como argumento.
+
   // Generator; shorthand for event and particleData.
 
   Event& event      = pythia.event;
@@ -190,7 +178,7 @@ int main(int argc, char *argv[]) {
 
   // Import Ds+ data (e,theta,phi) from idata to vector v
    // Number of columns (e, theta, phi)
-  cout<<"Importando dsdata..."<<endl;
+  cout<<"Importando "<< idata_s <<endl;
    vector <double> row;
    vector < vector <double> > v;
    double a;
@@ -386,15 +374,6 @@ int main(int argc, char *argv[]) {
 	int counter0=0, counter1=0, counter2=0;
 	int counterhnl0=0, counterhnl1=0;
 	
-	// DEBUG
-  	ofstream debugx0("debugx0.dat"); 
-  	ofstream debugp0("debugp0.dat");
-  	ofstream debugx1("debugx1.dat");
-  	ofstream debugp1("debugp1.dat");
-	ofstream debugx2("debugx2.dat");
-  	ofstream debugp2("debugp2.dat");
-
-
 // ******************************************************************
 // ******************** BEGIN DATA ANALYSIS *************************	
 
@@ -563,49 +542,15 @@ int main(int argc, char *argv[]) {
 
 		//cout<<nuallvector[j][0]<<endl;
 		cout	<<"off-axis = "<<offaxis<<": " << endl
-					<<"Neutrinos only in LarTPC: "<<counter0<<endl
-					<<"Neutrinos only in MPD: "<<counter1<<endl
-					<<"Neutrinos in LarTPC & MPD: "<<counter2<<endl
-					<<"HNL decay in LarTPC: "<<counterhnl0<<endl
-					<<"HNL decay in MPD: "<<counterhnl1<<endl<<endl;
+				<<"Neutrinos LarTPC: "<<counter0<<endl
+				<<"Neutrinos MPD: "<<counter1<<endl
+				<<"Neutrinos LarTPC & MPD: "<<counter2<<endl
+				<<"HNL decay LarTPC: "<<counterhnl0<<endl
+				<<"HNL decay MPD: "<<counterhnl1<<endl<<endl;
 
 		ioffaxis = ioffaxis + 1;
 
-		for (int i=0; i<nudetvector.size(); ++i){	  		
-	  		if(nudetvector[i][21]==0){
-	  			debugx0 	<< nudetvector[i][2] << " " 
-		  					<< nudetvector[i][3] << " " 
-		  					<< nudetvector[i][4] << " "
-		  					<< nudetvector[i][20] << endl;	  					
-				debugp0 	<< nudetvector[i][10] << " " 
-		  					<< nudetvector[i][11] << " " 
-		  					<< nudetvector[i][12] << " "
-		  					<< nudetvector[i][20] << endl;	  					
-	  		}
-	  		if(nudetvector[i][21]==1){
-	  			debugx1 	<< nudetvector[i][2] << " " 
-		  					<< nudetvector[i][3] << " " 
-		  					<< nudetvector[i][4] << " "
-		  					<< nudetvector[i][20] << endl;	  					
-				debugp1 	<< nudetvector[i][10] << " " 
-		  					<< nudetvector[i][11] << " " 
-		  					<< nudetvector[i][12] << " "
-		  					<< nudetvector[i][20] << endl;	  					
-	  		}
-	  		if(nudetvector[i][21]==2){
-	  			debugx2 	<< nudetvector[i][2] << " " 
-		  					<< nudetvector[i][3] << " " 
-		  					<< nudetvector[i][4] << " "
-		  					<< nudetvector[i][20] << endl;	  					
-				debugp2 	<< nudetvector[i][10] << " " 
-		  					<< nudetvector[i][11] << " " 
-		  					<< nudetvector[i][12] << " "
-		  					<< nudetvector[i][20] << endl;	  					
-	  		}
-		}
-  	
-
-
+		
 	} // End of offaxis loop
 
 
