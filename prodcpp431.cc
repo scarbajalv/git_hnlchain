@@ -2,7 +2,7 @@
 
 // ./X index
 
-  
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -13,6 +13,9 @@
 #include <cmath>
 #include <sstream>
 #include <random>
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
+
 
 using namespace std;
 
