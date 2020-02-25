@@ -13,6 +13,7 @@
 #include <cmath>
 #include <sstream>
 #include <random>
+#include <time.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 
@@ -35,25 +36,28 @@ int main(int argc, char *argv[]){
 	// *********** AQUÍ LOS PRINCIPALES PARÁMETROS ************
 	
 	double m = 1.96834; // mass of Dmeson
-	double a = 17.00962771; // x-gauss
-	double b = 0.63689258; // pT2-exp
+	double a = 16.6339541; // x-gauss
+	double b = 0.63424038; // pT2-exp
 
 	double ebeam = 120;
 	int nevents = 5000000;
 
 	// ********************************************************
 	
-	//double ebeam = stod(argv[1]);
-	double sigma_param = 1./sqrt(2*a);
-  default_random_engine generator;
-  normal_distribution <double> distribution(0.0, sigma_param);
-  double number;
+	// setup seed as time in nanosecods
+  struct timespec ts;
+  clock_gettime(CLOCK_MONOTONIC, &ts);
+  double seed = (time_t)ts.tv_nsec;
+  // set up random number function 
+  gsl_rng *r = gsl_rng_alloc(gsl_rng_mt19937);
+  // set seed for rnd generator  
+  gsl_rng_set (r, seed);
 
-	vector <double> row;
+  double sigma_param = 1./sqrt(2*a);
+
+  vector <double> row;
 	vector < vector <double> > ivector;
-	vector < vector <double> > ovector;
-
-	srand (time(NULL));
+	vector < vector <double> > ovector;	
 
 	double mbeam = 0.968;
 	double mtarget = 0.968;
@@ -65,8 +69,8 @@ int main(int argc, char *argv[]){
 	// Generamos la rawdata ¡¡¡¡¡ESTO TAL VEZ NO SEA NECESARIO!!!!!
 	cout<<"Generando data..."<<endl;
 	for (int i=0; i<nevents; ++i){
-		x_aux = distribution(generator);
-		pT2_aux = cdfsigmapt2( (rand() % 10000001)/10000000. , b);
+		x_aux = gsl_ran_gaussian(r, sigma_param);
+		pT2_aux = cdfsigmapt2( gsl_rng_uniform (r) , b);
 
 		row.clear();
 		pzcm = 0.5*sqrts*x_aux;
@@ -77,9 +81,7 @@ int main(int argc, char *argv[]){
 		pz = 1.*gamma*(pzcm-(-v)*ecm);
 		e = sqrt(1.*pow(pz,2)+pow(pt,2)+pow(m,2));
 		theta = atan(pt/pz);
-		phi = (rand() % 1001)/1000.*2*3.14159265358;
-		//px = sqrt(pow(pz,2)+pow(pt,2))*sin(theta)*cos(phi);
-		//py = sqrt(pow(pz,2)+pow(pt,2))*sin(theta)*sin(phi);
+		phi = gsl_rng_uniform (r)*2*3.14159265358;
 		// Debug en caso de que cdfsigmapt2 se haga infinito (x=1)
 		if (isnan(e)||isnan(theta)||isinf(e)||isinf(theta)){
 			cout<<" nan or inf found!"<<endl;
