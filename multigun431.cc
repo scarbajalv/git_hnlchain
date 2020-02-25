@@ -22,10 +22,11 @@
 
 #include <sstream>
 #include <string>
-using namespace Pythia8;
 
 #include "detect.h"
 #include "cpp-getEnv.h"
+
+using namespace Pythia8;
 
 // ---------------- COUNT LINES -----------------
 /// Function to count lines of file.
@@ -109,7 +110,7 @@ int main(int argc, char *argv[]) {
 	string ebeam_s = ebeam_ss.str();
 	double ebeam = stod(ebeam_s);
 
-	/// Read HNL mass from mainconfig/mHNL.dat (its first line is #mHNL)
+	/// Read HNL mass from $mainconfig/mHNL.dat (first line is #mHNL)
 	ifstream getmass(argv[2]);
 	string massstring;
 	getmass >> massstring;
