@@ -20,6 +20,9 @@
 
 #include <sstream>
 #include <string>
+
+#include "cpp-getEnv.h"
+
 using namespace Pythia8;
 
 // ---------------- COUNT LINES -----------------
@@ -123,7 +126,7 @@ int main(int argc, char *argv[]) {
 	TFile outFile(nroot_c, "recreate");
 
 	stringstream idata_ss;
-	idata_ss << "./mainconfig/d431data-120-" << argv[6] << ".dat";
+	idata_ss << getEnv("mainconfig") <<"d431data-120-" << argv[6] << ".dat"; 
 	string idata_s = idata_ss.str();
 	char idata_c[idata_s.size()+1];
 	strcpy(idata_c, idata_s.c_str());
@@ -135,7 +138,7 @@ int main(int argc, char *argv[]) {
     
  	/// pythia config files
   
- 	pythia.readFile("./mainconfig/pythiaconfig.ini");
+ 	pythia.readFile("./mainconfig/pythiaconfig-bg.ini");
     
   // Generator; shorthand for event and particleData.
 
@@ -156,7 +159,7 @@ int main(int argc, char *argv[]) {
   
   // Import Ds+ data (e,theta,phi) from idata to vector v
    // Number of columns (e, theta, phi)
-  cout<<"Importando dsdata..."<<endl;
+  cout<<"Importando "<< idata_s <<endl;
    vector <double> row;
    vector < vector <double> > v;
    double a;
