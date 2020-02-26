@@ -1,4 +1,4 @@
- 
+  
 // ./X ebeam maxoffaxis deltaoffaxis seed nroot index
 
 #include "Pythia8/Pythia.h"
@@ -93,10 +93,10 @@ int main(int argc, char *argv[]) {
 	// *********************** MAIN PARAMETERS ************************
 	
 	int 	idGun  = 431;
-	int 	nList = 1;
-	bool	hasLifetime =  true; ///if false, decays at origin.
-	int 	idhnl  = 2000000001;
-	bool 	atRest = false; /// if true, ignores energy and sets eeGun=m	
+  int   nList = 1;
+  bool  hasLifetime =  true; ///if false, decays at origin.
+  int   idhnl  = 2000000001;
+  bool  atRest = false; /// if true, ignores energy and sets eeGun=m  
 	
 	// ****************************************************************
   	
@@ -177,110 +177,29 @@ int main(int argc, char *argv[]) {
 		}
 	}
 	cout<<endl;
+  idata.close();
 
   
   // Variables auxiliares
   double xprod, yprod, zprod, x, y, z, px, py, pz, param;
   int pdg, mother;
   
-  // Vectores para almacenar data
-  vector < vector<double> > allvector;
-  vector < vector<double> > nuallvector;
-  vector < vector<double> > nudetvector;
+  int noffaxis = maxoffaxis/deltaoffaxis + 1;   
   
-  // ****************** EVENT LOOP ********************
-  
-  cout<<"Realizando cadena de decays de BG..."<<endl;
-
-  for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-
-  	/// Set up single particle (id, energy, theta, phi, ...)
-    fillParticle
-    (idGun, v[iEvent][0], v[iEvent][1], v[iEvent][2], event, pdt, pythia.rndm, atRest, hasLifetime);
-
-    /// Generate events. Quit if failure.
-    if (!pythia.next()) {
-      cout << "WFT! Event generation aborted prematurely, owing to error!\n";
-      break;
-    }
-
-    /// List first few events.
-    /*if (iEvent < nList) {
-      event.list();
-    }
-    */
-
-    // Loop over all particles (analysis).
-    for (int i = 0; i < event.size(); ++i) {
-			
-			if (pythia.event[i].id()==12||pythia.event[i].id()==-12
-        ||pythia.event[i].id()==14||pythia.event[i].id()==-14
-        ||pythia.event[i].id()==16||pythia.event[i].id()==-16){
-				
-				row.clear();
-				row.push_back(pythia.event[i].id()); // 0
-				row.push_back(pythia.event[i].tProd());
-				row.push_back(pythia.event[i].xProd()); // 2
-				row.push_back(pythia.event[i].yProd()); // 3
-				row.push_back(pythia.event[i].zProd()); // 4
-				row.push_back(pythia.event[i].tDec());
-				row.push_back(pythia.event[i].xDec());
-				row.push_back(pythia.event[i].yDec());
-				row.push_back(pythia.event[i].zDec());
-				row.push_back(pythia.event[i].e());
-				row.push_back(pythia.event[i].px()); // 10
-				row.push_back(pythia.event[i].py()); // 11
-				row.push_back(pythia.event[i].pz()); // 12
-				row.push_back(pythia.event[i].pT());
-				row.push_back(pythia.event[i].theta());
-				row.push_back(pythia.event[i].phi());
-				row.push_back(pythia.event[i].y());
-				row.push_back(pythia.event[i].eta());
-				row.push_back(pythia.event[i].index());
-				//row.push_back(pythia.event[pythia.event[i].mother1()].id());
-				row.push_back(pythia.event[i].mother1()); // j = 19
-					
-				nuallvector.push_back(row);
-					
-			} // End of nuall
-								
-	} // End of Loop over all particles (analysis)
-
-	cout<<"\r"<<setprecision(2)<<(iEvent+1)/1000000.<<" M";
-	
-  } // End of event loop.  
-  cout<<endl;
-
-
-  // ************************************************************************
-  // ************************ PRE DATA ANALYSIS *****************************
-
-
-
-	int noffaxis = maxoffaxis/deltaoffaxis + 1; 	
-	//ofstream alldata[noffaxis];
-	//ofstream nudata[noffaxis];
-	//ofstream nudet[noffaxis];
-
-  	if (maxoffaxis % deltaoffaxis != 0){
- 			cout<<"FATAL ERROR: maxoffaxis debe ser múltiplo entero de deltaoffaxis"<<endl;
- 			exit (EXIT_FAILURE);
- 		} 	
+    if (maxoffaxis % deltaoffaxis != 0){
+      cout<<"FATAL ERROR: maxoffaxis debe ser múltiplo entero de deltaoffaxis"<<endl;
+      exit (EXIT_FAILURE);
+    }   
 
  	cout<<endl<<"Exporting data..."<<endl;
  	cout<<endl;
   	//cout<<"Off-Axis = "<<offaxis<<endl;
-  	cout<<"seed = "<<seed<<endl;
-  	cout<<"nevents = "<<nEvent<<endl;
-  	cout<<"Total Particles: "<<allvector.size()<<endl;
-  	cout<<"Total Neutrinos: "<<nuallvector.size()<<endl<<endl;
+  cout<<"seed = "<<seed<<endl;
+  cout<<"nevents = "<<nEvent<<endl;
 
-
- 	int ioffaxis = 0;
- 	
- 	double rebeam, roffaxis, rid, rtProd, rxProd, ryProd, rzProd, rtDec, rxDec, ryDec, rzDec, re,
+	double rebeam, roffaxis, rid, rtProd, rxProd, ryProd, rzProd, rtDec, rxDec, ryDec, rzDec, re,
 	rpx, rpy, rpz, rpT, rtheta, rphi, ry, reta, rpindex, rpmother;
-  	int mother1, mother2, auxpdg, rdet_id;
+  int mother1, mother2, auxpdg, rdet_id;
 
 	TTree nu("nu","nu");
 	nu.Branch("ebeam",&rebeam,"rebeam/D");
@@ -307,111 +226,97 @@ int main(int argc, char *argv[]) {
 	nu.Branch("pindex",&rpindex,"rpindex/D");
 	nu.Branch("pmother",&rpmother,"rpmother/D");
 
-	double unitfactor = 1000; // 1000 for mm
-
 	int counter0=0, counter1=0, counter2=0;
 
-	// ******************************************************************
-	// ******************** BEGIN DATA ANALYSIS *************************
+  // *******************************************************************
+  // ************************ MAIN LOOP ********************************
+  
+  cout<<"Realizando cadena de decays de BG..."<<endl;
 
+	for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
 
- 	while (ioffaxis < noffaxis){
+  	/// Set up single particle (id, energy, theta, phi, ...)
+    fillParticle
+    (idGun, v[iEvent][0], v[iEvent][1], v[iEvent][2], event, pdt, pythia.rndm, atRest, hasLifetime);
 
- 		row.clear();
- 		nudetvector.clear();
- 		counter0=0;
- 		counter1=0;
- 		counter2=0;
+    /// Generate events. Quit if failure.
+    if (!pythia.next()) {
+      cout << "WFT! Event generation aborted prematurely, owing to error!\n";
+      break;
+    }
 
-	 	int  offaxis = deltaoffaxis*ioffaxis;
-
-		// Seleccionar neutrinos que ingresan al detector
-		for(int i=0; i<nuallvector.size(); ++i){
+    
+    for (int i = 0; i < event.size(); ++i) {// Loop over all particles (analysis).
 			
-			double xx[3]={nuallvector[i][2],nuallvector[i][3],nuallvector[i][4]};
-			double pp[3]={nuallvector[i][10],nuallvector[i][11],nuallvector[i][12]};	
+			if (pythia.event[i].id()==12||pythia.event[i].id()==-12
+				||pythia.event[i].id()==14||pythia.event[i].id()==-14
+				||pythia.event[i].id()==16||pythia.event[i].id()==-16){ // if nu
 
-			// Atraviesa el LArTPC y el MPD
-			if (detect(xx,pp,offaxis)&&detectmpd(xx,pp,offaxis)){				
-				row.clear();
-				rdet_id = 2;
-				for (int j = 0; j < 20; ++j){
-					row.push_back(nuallvector[i][j]);
-				}
-				row.push_back(offaxis); // j=20
-				row.push_back(rdet_id); // j=21
-				nudetvector.push_back(row);
-				counter2++;
-			} // en of nudet
-			// Atraviesa solo el LArTPC
-			if (detect(xx,pp,offaxis)&&!detectmpd(xx,pp,offaxis)){				
-				row.clear();
-				rdet_id = 0;
-				for (int j = 0; j < 20; ++j){
-					row.push_back(nuallvector[i][j]);
-				}
-				row.push_back(offaxis); // j=20
-				row.push_back(rdet_id); // j=21
-				nudetvector.push_back(row);
-				counter0++;
-			} // en of nudet
-			// Atraviesa solo el MPD
-			if (detectmpd(xx,pp,offaxis)&&!detect(xx,pp,offaxis)){
-				row.clear();
-				rdet_id = 1;
-				for (int j = 0; j < 20; ++j){
-					row.push_back(nuallvector[i][j]);
-				}
-				row.push_back(offaxis); // j=20
-				row.push_back(rdet_id); // j=21
-				nudetvector.push_back(row);
-				counter1++;
-			} // en of nudet
+          double xx[3]={pythia.event[i].xProd(),pythia.event[i].yProd(),pythia.event[i].zProd()};
+          double pp[3]={pythia.event[i].px(),pythia.event[i].py(),pythia.event[i].pz()};  
 
-		}
+        int ioffaxis = 0;
 
-		for (int i=0; i<nudetvector.size(); ++i){
+        while (ioffaxis < noffaxis){  // being off-axis loop
+
+          int  offaxis = deltaoffaxis*ioffaxis;
+            
+            bool saveintree = false; // asumimos que no ingresa al detector
+
+            // Atraviesa el LArTPC y el MPD
+            if (detect(xx,pp,offaxis)&&detectmpd(xx,pp,offaxis)){       
+              rdet_id = 2;
+              saveintree = true;          
+            } // en of nudet
+            // Atraviesa solo el LArTPC
+            if (detect(xx,pp,offaxis)&&!detectmpd(xx,pp,offaxis)){        
+              rdet_id = 0;
+              saveintree = true;            
+            } // en of nudet
+            // Atraviesa solo el MPD
+            if (detectmpd(xx,pp,offaxis)&&!detect(xx,pp,offaxis)){
+              rdet_id = 1;
+              saveintree = true;        
+            } // en of nudet
+
+            if (saveintree == true){
+              rebeam = ebeam;
+              roffaxis = offaxis;
+              rid = pythia.event[i].id();
+              rtProd = pythia.event[i].tProd();
+              rxProd = pythia.event[i].xProd(); 
+              ryProd = pythia.event[i].yProd(); 
+              rzProd = pythia.event[i].zProd();
+              rtDec = pythia.event[i].tDec(); 
+              rxDec = pythia.event[i].xDec();
+              ryDec = pythia.event[i].yDec();
+              rzDec = pythia.event[i].zDec();
+              re = pythia.event[i].e();
+              rpx = pythia.event[i].px();
+              rpy = pythia.event[i].py();
+              rpz = pythia.event[i].pz();
+              rpT = pythia.event[i].pT();
+              rtheta = pythia.event[i].theta();
+              rphi = pythia.event[i].phi();
+              ry = pythia.event[i].y();
+              reta = pythia.event[i].eta();
+              rpmother = pythia.event[pythia.event[i].mother1()].id();
+              nu.Fill();
+            }
+
+          ioffaxis = ioffaxis + 1;
+       
+        } // End of offaxis loop
+				
 		
-			// Fill nu TTree
-			rebeam = ebeam;
-			roffaxis = nudetvector[i][20];
-			rdet_id = nudetvector[i][21];
-			rid = nudetvector[i][0];
-			rtProd = nudetvector[i][1];
-			rxProd = nudetvector[i][2]; 
-			ryProd = nudetvector[i][3]; 
-			rzProd = nudetvector[i][4];
-			rtDec = nudetvector[i][5]; 
-			rxDec = nudetvector[i][6];
-			ryDec = nudetvector[i][7];
-			rzDec = nudetvector[i][8];
-			re = nudetvector[i][9];
-			rpx = nudetvector[i][10];
-			rpy = nudetvector[i][11];
-			rpz = nudetvector[i][12];
-			rpT = nudetvector[i][13];
-			rtheta = nudetvector[i][14];
-			rphi = nudetvector[i][15];
-			ry = nudetvector[i][16];
-			reta = nudetvector[i][17];
-			rpindex = nudetvector[i][18];
-			rpmother = nudetvector[i][19];
-			nu.Fill();
-		}
+			} // End of if nu.
+								
+    } // End of Loop over all particles (analysis)
 
-		//cout<<nuallvector[j][0]<<endl;
-		cout	<<"off-axis = "<<offaxis<<": " << endl
-				<<"Neutrinos LarTPC: "<<counter0<<endl
-				<<"Neutrinos MPD: "<<counter1<<endl
-				<<"Neutrinos LarTPC & MPD: "<<counter2<<endl<<endl;
-
-		ioffaxis = ioffaxis + 1;
-     
-	} // End of offaxis loop
-
-
-	// ************************ END DATA ANALYSIS *************************
-	// ********************************************************************
+	cout<<"\r"<<setprecision(2)<<(iEvent+1)/1000000.<<" M";
+	
+  } // End of event loop.  
+  cout<<endl;
  
 	// Write Root File
   	cout<<"Exporting root file..."<<endl;
