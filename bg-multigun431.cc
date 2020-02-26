@@ -213,9 +213,9 @@ int main(int argc, char *argv[]) {
     // Loop over all particles (analysis).
     for (int i = 0; i < event.size(); ++i) {
 			
-			if (pythia.event[i].id()==12
-				||pythia.event[i].id()==14
-				||pythia.event[i].id()==16){
+			if (pythia.event[i].id()==12||pythia.event[i].id()==-12
+        ||pythia.event[i].id()==14||pythia.event[i].id()==-14
+        ||pythia.event[i].id()==16||pythia.event[i].id()==-16){
 				
 				row.clear();
 				row.push_back(pythia.event[i].id()); // 0
@@ -310,14 +310,6 @@ int main(int argc, char *argv[]) {
 	double unitfactor = 1000; // 1000 for mm
 
 	int counter0=0, counter1=0, counter2=0;
-
-  // DEBUG
-    ofstream debugx0("debugx0.dat"); 
-    ofstream debugp0("debugp0.dat");
-    ofstream debugx1("debugx1.dat");
-    ofstream debugp1("debugp1.dat");
-    ofstream debugx2("debugx2.dat");
-    ofstream debugp2("debugp2.dat");
 
 	// ******************************************************************
 	// ******************** BEGIN DATA ANALYSIS *************************
@@ -414,40 +406,7 @@ int main(int argc, char *argv[]) {
 				<<"Neutrinos LarTPC & MPD: "<<counter2<<endl<<endl;
 
 		ioffaxis = ioffaxis + 1;
- 
-    for (int i=0; i<nudetvector.size(); ++i){       
-        if(nudetvector[i][21]==0){
-          debugx0   << nudetvector[i][2] << " " 
-                    << nudetvector[i][3] << " " 
-                    << nudetvector[i][4] << " "
-                    << nudetvector[i][20] << endl;              
-        debugp0     << nudetvector[i][10] << " " 
-                    << nudetvector[i][11] << " " 
-                    << nudetvector[i][12] << " "
-                    << nudetvector[i][20] << endl;              
-        }
-        if(nudetvector[i][21]==1){
-          debugx1   << nudetvector[i][2] << " " 
-                    << nudetvector[i][3] << " " 
-                    << nudetvector[i][4] << " "
-                    << nudetvector[i][20] << endl;              
-        debugp1     << nudetvector[i][10] << " " 
-                    << nudetvector[i][11] << " " 
-                    << nudetvector[i][12] << " "
-                    << nudetvector[i][20] << endl;              
-        }
-        if(nudetvector[i][21]==2){
-          debugx2   << nudetvector[i][2] << " " 
-                    << nudetvector[i][3] << " " 
-                    << nudetvector[i][4] << " "
-                    << nudetvector[i][20] << endl;              
-        debugp2     << nudetvector[i][10] << " " 
-                    << nudetvector[i][11] << " " 
-                    << nudetvector[i][12] << " "
-                    << nudetvector[i][20] << endl;              
-        }
-    }
-
+     
 	} // End of offaxis loop
 
 
