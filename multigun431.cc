@@ -1,5 +1,5 @@
 // ./X ebeam mHNL.dat maxoffaxis deltaoffaxis seed nroot index
- 
+  
 // Basado en main21.cc
 // Single particle gun a partir de un idata file que contiene
 // vectores del tipo (e,theta,phi) de una partícula idGun.
@@ -235,9 +235,9 @@ int main(int argc, char *argv[]) {
     // Loop over all particles (analysis).
     for (int i = 0; i < event.size(); ++i) {
 			
-			if (pythia.event[i].id()==12
-				||pythia.event[i].id()==14
-				||pythia.event[i].id()==16){
+			if (pythia.event[i].id()==12||pythia.event[i].id()==-12
+        ||pythia.event[i].id()==14||pythia.event[i].id()==-14
+        ||pythia.event[i].id()==16||pythia.event[i].id()==-16){ // begin if nu
 				
 				row.clear();
 				row.push_back(pythia.event[i].id());
