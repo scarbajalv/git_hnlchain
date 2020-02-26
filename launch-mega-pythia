@@ -1,11 +1,26 @@
 #!/bin/bash
 
-./launch-pythia_v08 120 40 1 1 1 > /dev/null &
-./launch-pythia_v08 120 40 1 20 2 > /dev/null &
-./launch-pythia_v08 120 40 1 40 3 > /dev/null &
-./launch-pythia_v08 120 40 1 60 4 > /dev/null &
-./launch-pythia_v08 120 40 1 80 5 > /dev/null &
-./launch-pythia_v08 120 40 1 100 6
+q=431
+
+./launch-pythia $q 120 40 1 1 1 > /dev/null &
+./launch-pythia $q 120 40 1 20 2 > /dev/null &
+./launch-pythia $q 120 40 1 40 3
+
+printf '\n1 2 3 OK \n'
+
+./launch-pythia $q 120 40 1 60 4 > /dev/null &
+./launch-pythia $q 120 40 1 80 5 > /dev/null &
+./launch-pythia $q 120 40 1 100 6
+
+printf '\n4 5 6 OK \n'
+
+./launch-pythia $q 120 40 1 120 7 > /dev/null &
+./launch-pythia $q 120 40 1 140 8 > /dev/null &
+./launch-pythia $q 120 40 1 160 9
+
+printf '\n7 8 9 OK \n'
+
+./launch-pythia $q 120 40 1 180 10
 
 zenity --info \
 --text '<span font="32"> Procesos \n completados </span>' \
