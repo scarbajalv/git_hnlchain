@@ -1,4 +1,4 @@
-// ./multigunvX ebeam mHNL.dat maxoffaxis deltaoffaxis seed nroot index
+// ./X ebeam mHNL.dat maxoffaxis deltaoffaxis seed nroot index
  
 // Basado en main21.cc
 // Single particle gun a partir de un idata file que contiene
