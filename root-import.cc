@@ -180,7 +180,7 @@ int main(){
     xrange[i] =  xmin + (xmax-xmin)/nbins*i;
   }
 
-  //gsl_histogram_set_ranges_uniform (histo, xmin, xmax);
+  //gsl_histogram_set_ranges_uniform (histo, XRANGE, XRANGE_Dim);
   for (int i=0; i<4; ++i){
     for(int j=0; j<5; ++j){
       gsl_histogram_set_ranges (v_h1[i][j], xrange, nbins+1);
@@ -188,24 +188,95 @@ int main(){
     }
   }
 
-  gsl_histogram_set_ranges (histo, xrange, nbins+1);
-  
+  double v_meta1[4][5][2];
+  double v_meta2[4][5][2];
+
+  for (int i=0; i < 4; ++i ){
+    for(int j = 0; j < 5; ++j){
+      for (int p = 0; p < 2; ++p){
+        v_meta1[i][j][p]=0;
+        v_meta2[i][j][p]=0;
+      }
+    }
+  }
+
+  int k = 0;
+  int l = 0;
+
+  int nevents;
+  nevents = treesize;
+  nevents = 100000000;
 
 
-  for (int i=0; i<1*nui->GetEntries(); ++i){
+  // *********************  MAIN LOOP  **************************
+
+  for (int i=0; i<nevents; ++i){
+
 		nui->GetEntry(i);
-    if (rid == 16 && rmhnl == 1. && rdet_id == 0){
-      gsl_histogram_increment(histo, re);
-    }		
-		if( (i+1) % 10000 == 0){
-			cout << (i+1)/treesize * 100 << "\r";
-		}
+
+    if( ( rdet_id==0    || rdet_id==1   || rdet_id==2 ) &&
+        ( rmhnl==0.5    || rmhnl==1.0   || rmhnl==1.5 || rmhnl==1.9) &&
+        ( roffaxis==0   || roffaxis==10 || 
+          roffaxis==20  || roffaxis==30 || roffaxis==40)
+        ){
+      
+      cout << "found mhnl = 0!" << endl;
+
+      if(rmhnl == 1.9){
+        k = 3;
+      }
+      else {
+        k = (rmhnl-0.5)/0.5;
+      }
+
+      l = roffaxis/10;
+
+      //cout << k << " " << l << endl;
+
+      if( ( rid == 12 || rid == 14 || rid == 16) ){
+        gsl_histogram_increment(v_h1[k][l], re);
+        v_meta1[k][l][0] = rmhnl;
+        v_meta1[k][l][1] = roffaxis;
+      }
+      if( ( rid ==-12 || rid == -14 || rid == -16) ){
+        gsl_histogram_increment(v_h2[k][l], re);
+        v_meta2[k][l][0] = rmhnl;
+        v_meta2[k][l][1] = roffaxis;
+      }
+      
+    }
+		
+    if( (i+1) % 10000 == 0){	cout << 1.*(i+1)/nevents * 100. << "\r";	}
 	}
 
-  ofstream odata("histoinfo.dat"); 
+  ofstream data1("data1.dat"); 
+  ofstream data2("data2.dat"); 
+
+  for (int k=0; k < 4; ++k){
+    for(int l=0; l < 5; ++l){
+      data1 << v_meta1[k][l][0] << " " << v_meta1[k][l][1]<< " ";
+      for (int i=0; i < nbins; ++i){
+        data1 << gsl_histogram_get( v_h1[k][l], i)<< " ";
+      }
+      data1 << endl;
+    }
+  }
+
+  for ( k=0; k < 4; ++k){
+    for( l=0; l < 5; ++l){
+      data2 << v_meta2[k][l][0] << " " << v_meta2[k][l][1]<< " ";
+      for (int i=0; i < nbins; ++i){
+        data2 << gsl_histogram_get( v_h2[k][l], i)<< " ";
+      }
+      data2 << endl;
+    }
+  }
+
+  /*
   for(int i=0; i < nbins; ++i){
     odata << xrange[i] << " " << xrange[i+1] << " " << gsl_histogram_get(histo , i) << endl;
   }
+  */
 
   return 0;
 	
