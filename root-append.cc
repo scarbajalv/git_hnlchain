@@ -87,8 +87,7 @@ int main(int argc, char *argv[]){
 	nui->SetBranchAddress("phi",&rphi);
 	nui->SetBranchAddress("y",&ry);
 	nui->SetBranchAddress("eta",&reta);
-	nui->SetBranchAddress("pindex",&rpindex);
-	nui->SetBranchAddress("pmother",&rpmother);
+	nui->SetBranchAddress("motherid",&rmotherid);
 
 		//DEFINE TREES FROM OUTPUT FILE
 	
@@ -119,8 +118,7 @@ int main(int argc, char *argv[]){
 	nuo->SetBranchAddress("phi",&rphi);
 	nuo->SetBranchAddress("y",&ry);
 	nuo->SetBranchAddress("eta",&reta);
-	nuo->SetBranchAddress("pindex",&rpindex);
-	nuo->SetBranchAddress("pmother",&rpmother);
+	nuo->SetBranchAddress("motherid",&rmotherid);
 
 	
 			
