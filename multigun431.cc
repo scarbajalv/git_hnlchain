@@ -194,8 +194,8 @@ int main(int argc, char *argv[]) {
 			v.push_back(row);
 			row.clear();
 			icount++;
-      if((icount+1) % 100000 == 0){
-      cout<<"\r"<<fixed<<setprecision(1)<<(icount+1)/1000000.<<" M"<<flush;
+      if((icount+1) % 10000 == 0){
+      cout<<"\r"<<fixed<<setprecision(2)<<(icount+1)/1000000.<<" M"<<flush;
       }
 
 		}
@@ -226,8 +226,8 @@ int main(int argc, char *argv[]) {
 
   // Create ROOT variables
   double rebeam, rmhnl, roffaxis, rid, rtProd, rxProd, ryProd, rzProd, rtDec, rxDec, ryDec, rzDec, re,
-  rpx, rpy, rpz, rpT, rtheta, rphi, ry, reta, rpindex, rpmother;
-    int mother1, mother2, auxpdg, rdet_id;
+  rpx, rpy, rpz, rpT, rtheta, rphi, ry, reta, rpindex;
+    int mother1, mother2, auxpdg, rdet_id, rmotherid;;
 
   TTree nu("nu","nu");
   nu.Branch("ebeam",&rebeam,"rebeam/D");
@@ -252,7 +252,7 @@ int main(int argc, char *argv[]) {
   nu.Branch("phi",&rphi,"rphi/D");
   nu.Branch("y",&ry,"ry/D");
   nu.Branch("eta",&reta,"reta/D");
-  nu.Branch("pmother",&rpmother,"rpmother/D");
+  nu.Branch("motherid",&rmotherid,"rmotherid/I");
   
   double unitfactor = 1000; // 1000 for mm
 
@@ -353,7 +353,7 @@ int main(int argc, char *argv[]) {
               rphi = pythia.event[i].phi();
               ry = pythia.event[i].y();
               reta = pythia.event[i].eta();
-              rpmother = pythia.event[pythia.event[i].mother1()].id();
+              rmotherid = pythia.event[pythia.event[i].mother1()].id();
               nu.Fill();
             }
 
@@ -424,7 +424,7 @@ int main(int argc, char *argv[]) {
               rphi = pythia.event[i].phi();
               ry = pythia.event[i].y();
               reta = pythia.event[i].eta();
-              rpmother = pythia.event[pythia.event[i].mother1()].id();
+              rmotherid = pythia.event[pythia.event[i].mother1()].id();
               nu.Fill();
           }
 
@@ -451,7 +451,9 @@ int main(int argc, char *argv[]) {
   outFile.cd();
   nu.Write("",2);
 
-	cout<<endl<<"SUCCESS!"<<endl;
+	idata.close();
+
+  cout<<endl<<"SUCCESS!"<<endl;
 
   // Done.
   return 0;
