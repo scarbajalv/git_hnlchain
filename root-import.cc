@@ -205,7 +205,7 @@ int main(){
 
   int nevents;
   nevents = treesize;
-  nevents = 100000000;
+  nevents = 1e8;
 
 
   // *********************  MAIN LOOP  **************************
@@ -220,8 +220,6 @@ int main(){
           roffaxis==20  || roffaxis==30 || roffaxis==40)
         ){
       
-      cout << "found mhnl = 0!" << endl;
-
       if(rmhnl == 1.9){
         k = 3;
       }
@@ -246,7 +244,7 @@ int main(){
       
     }
 		
-    if( (i+1) % 10000 == 0){	cout << 1.*(i+1)/nevents * 100. << "\r";	}
+    if( (i+1) % 10000 == 0){	cout << 1.*(i+1)/nevents * 100. << "%" <<"\r";	}
 	}
 
   ofstream data1("data1.dat"); 
