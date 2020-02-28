@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 #include <stdlib.h> 
 #include <vector>
+#include <iomanip>
 
 #include "TH1.h"
 #include "THStack.h"
@@ -193,7 +194,9 @@ int main(int argc, char *argv[]) {
 			v.push_back(row);
 			row.clear();
 			icount++;
-			cout<<"\r"<<setprecision(2)<<(icount)/1000000.<<" M";
+      if((icount+1) % 100000 == 0){
+      cout<<"\r"<<fixed<<setprecision(1)<<(icount+1)/1000000.<<" M"<<flush;
+      }
 
 		}
 	}
@@ -261,7 +264,7 @@ int main(int argc, char *argv[]) {
 
   // Define LarTPC detector geometry
   double w_mpd = 5.; // largo del cilindro (m)
-  double r = 0.5*5; // radio (m)
+  double r_mpd = 0.5*5; // radio (m)
 
 
   double  xidet, xfdet, yidet , yfdet, zidet, zfdet;
@@ -380,7 +383,6 @@ int main(int argc, char *argv[]) {
 
           ximpd = (-w_mpd/2+offaxis)*unitfactor;
           xfmpd = (w_mpd/2+offaxis)*unitfactor;
-          rmpd = r*unitfactor;
           czmpd = (z0det+l+rmpd)*unitfactor;
           cympd = 0;
 
@@ -434,8 +436,10 @@ int main(int argc, char *argv[]) {
 								
 	} // End loop over all particles
 
-	cout<<"\r"<<setprecision(2)<<(iEvent+1)/1000000.<<" M";
-	
+  if((iEvent+1) % 10000 == 0){
+	 cout<<"\r"<<fixed<<setprecision(2)<<(iEvent+1)/1000000.<<" M"<<flush;
+	}
+  
   } // End of // Main event Loop
 
   
