@@ -54,8 +54,9 @@ int main(int argc, char *argv[]){
 	
 	double var_e, var_theta, var_pT;
 
-	double rebeam, rmhl, roffaxis, rid, rtProd, rxProd, ryProd, rzProd, rtDec, rxDec, ryDec, rzDec, re, rpx, rpy, rpz, rpT, rtheta, rphi, ry, reta, rpindex, rpmother, rnevents, 
+	double rebeam, rmhl, roffaxis, rid, rtProd, rxProd, ryProd, rzProd, rtDec, rxDec, ryDec, rzDec, re, rpx, rpy, rpz, rpT, rtheta, rphi, ry, reta, rpindex, rnevents, 
 		rnuall, rnudet;
+  int rmotherid;
 
 	
 	// DEFINE TREES FROM INPUT FILE:
@@ -135,6 +136,7 @@ int main(int argc, char *argv[]){
 	f2.cd();
 	
 	nuo->Write("",2);
+  
 
 	return 0;
 
